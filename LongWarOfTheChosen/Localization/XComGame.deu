@@ -151,11 +151,11 @@ LocPromotionPopupText="<Bullet/> Der Flammenwerfer ist eine Kurzstreckenwaffe, d
 
 [LWRocketLauncher X2AbilityTemplate]
 LocFriendlyName="Raketenwerfer"
-LocHelpText="Feuere eine Rakete auf den Zielbereich. <Ability:ROCKETSCATTER/>"
+LocHelpText="Feuere eine Rakete auf den Zielbereich.<Ability:ROCKETSCATTER/>"
 
 [LWBlasterLauncher X2AbilityTemplate]
 LocFriendlyName="Blasterbombe"
-LocHelpText="Feuert eine Lenk-Blasterbombe auf ein Zielgebiet. <Ability:ROCKETSCATTER/>"
+LocHelpText="Feuert eine Lenk-Blasterbombe auf ein Zielgebiet.<Ability:ROCKETSCATTER/>"
 
 [NapalmX X2AbilityTemplate]
 LocFriendlyName="Napalm-X"
@@ -251,7 +251,7 @@ LocPromotionPopupText="<Bullet/> Die Reichweite deiner Raketen wird um 6 Felder 
 [BunkerBuster X2AbilityTemplate]
 LocFriendlyName="Bunkerknacker"
 LocFlyOverText="Bunkerknacker"
-LocHelpText="Feuert eine Spezialrakete ab, die Gebäude und andere Objekte in der Umgebung zerstört. <Ability:ROCKETSCATTER/>"
+LocHelpText="Feuert eine Spezialrakete ab, die Gebäude und andere Objekte in der Umgebung zerstört."
 LocLongDescription="Feuert eine Spezialrakete ab, die Gebäude und andere Objekte in der Umgebung zerstört."
 LocPromotionPopupText="<Bullet/> Feuert eine Spezialrakete mit großem Wirkungsbereich ab, die bei Feinden mittleren Schaden verursacht, an Gebäuden, Fahrzeugen und anderen Objekten in der Umgebung jedoch gewaltigen Schaden anrichtet.<br/><Bullet/> Erfordert beide Aktionen und kann nur einmal pro Einsatz eingesetzt werden.<br/>"
 
@@ -3110,6 +3110,10 @@ BonusText="HEILUNGSRATE +%AVENGERBONUS %"
 FilledText="Zusätzliche medizinische Unterstützung durch %UNITNAME erhöht die Rate, mit der sich Soldaten von Verletzungen erholen."
 LockedText="GESPERRT: VERBESSERUNG KAUFEN"
 
+[CovertActionIntenseTrainingStaffSlot X2StaffSlotTemplate]
+EmptyText="OLDAT"
+BonusText="IN VERDECKTER AKTION"
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Techs ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 [Tech_AlienFacilityLead X2TechTemplate]
@@ -5374,6 +5378,10 @@ LocLongDescription="Wenn du mit einem Schuss oder irgendeiner Fähigkeit einen k
 [LocationScout X2SitRepTemplate]
 Description="Der Widerstand hat im gesamten Missionsgebiet Bewegungsmelder mit geringer Reichweite platziert, die sich mit der Kommunikation unseres Trupps verbinden. Deine Soldaten können feindliche Einheiten erkennen, die sich außerhalb der Sichtlinie befinden."
 
+[SlightlyLargeMap X2SitRepTemplate]
+FriendlyName="Große Karte"
+Description="Das Missionsgebiet ist größer als üblich, folglich kann es länger dauern, das Missionsziel zu erreichen."
+
 [LargeMap X2SitRepTemplate]
 FriendlyName="Große Karte"
 Description="Das Missionsgebiet ist größer als üblich, folglich kann es länger dauern, das Missionsziel zu erreichen."
@@ -5767,9 +5775,9 @@ LocPromotionPopupText="<Bullet/> Wenn du diese Runde einen Kill erzielt hast, ge
 [Dedication_LW X2AbilityTemplate]
 LocFriendlyName="Voller Einsatz"
 LocFlyOverText="Voller Einsatz"
-LocLongDescription="Erhalte <Ability:DEDICATION_MOBILITY/> Mobilität und ignoriere Reflexschüsse für den Rest der Runde. Kostenlose Aktion mit einer Abklingzeit von <Ability:SelfCooldown_LW/> Runden."
-LocHelpText="Erhalte <Ability:DEDICATION_MOBILITY/> Mobilität und ignoriere Reflexschüsse für den Rest der Runde. Kostet keine Aktion und hat eine Abklingzeit von <Ability:SelfCooldown_LW/> Runden."
-LocPromotionPopupText="<Bullet/> Erhalte <Ability:DEDICATION_MOBILITY/> Mobilität und ignoriere Reflexschüsse für den Rest der Runde.<br/><Bullet/> Voller Einsatz kostet keine Aktion und hat eine Abklingzeit von <Ability:SelfCooldown_LW/> Runden.<br/>"
+LocLongDescription="Erhalte <Ability:DEDICATIONLW_MOBILITY/> Mobilität und ignoriere Reflexschüsse für den Rest der Runde. Kostenlose Aktion mit einer Abklingzeit von <Ability:SelfCooldown_LW/> Runden."
+LocHelpText="Erhalte <Ability:DEDICATIONLW_MOBILITY/> Mobilität und ignoriere Reflexschüsse für den Rest der Runde. Kostet keine Aktion und hat eine Abklingzeit von <Ability:SelfCooldown_LW/> Runden."
+LocPromotionPopupText="<Bullet/> Erhalte <Ability:DEDICATIONLW_MOBILITY/> Mobilität und ignoriere Reflexschüsse für den Rest der Runde.<br/><Bullet/> Voller Einsatz kostet keine Aktion und hat eine Abklingzeit von <Ability:SelfCooldown_LW/> Runden.<br/>"
 
 [Corpsman_LW X2AbilityTemplate]
 LocFriendlyName="Sanitäter"
@@ -5980,6 +5988,12 @@ LocLongDescription = "Das Töten eines Feindes erhöht deinen Hackwert für 3 Ru
 LocPromotionPopupText = "<Bullet/> Das Töten eines Feindes gewährt dir +<Ability:DISASSEMBLY_HACK/> Hacken für 3 Runden.<br/><Bullet/> Durch mehrere getötete Feinde gewährte Boni wirken kumulativ.<br/>"
 
 [LightningSlash_LW X2AbilityTemplate]
+LocFriendlyName="Blitzschneller Schlitzer"
+LocLongDescription="Greife einen Feind innerhalb deiner blauen Bewegungsreichweite mit der Waffe \"<Ability:BOUND_WEAPON_NAME/>\" an. Der Angriff beendet deine Runde nicht."
+LocHelpText="Greife einen Feind innerhalb deiner blauen Bewegungsreichweite mit der Waffe \"<Ability:BOUND_WEAPON_NAME/>\" an. Beendet deine Runde nicht."
+LocPromotionPopupText="<Bullet/> Greife einen Feind innerhalb deiner blauen Bewegungsreichweite mit der Waffe \"<Ability:BOUND_WEAPON_NAME/>\" an.<br/><Bullet/> Der Angriff beendet deine Runde nicht.<br/><Bullet/> Blitzschneller Schlitzer hat eine Abklingzeit von <Ability:LIGHTNINGSLASH_COOLDOWN/> Runden.<br/>"
+
+[LightningSlashLastAction_LW X2AbilityTemplate]
 LocFriendlyName="Blitzschneller Schlitzer"
 LocLongDescription="Greife einen Feind innerhalb deiner blauen Bewegungsreichweite mit der Waffe \"<Ability:BOUND_WEAPON_NAME/>\" an. Der Angriff beendet deine Runde nicht."
 LocHelpText="Greife einen Feind innerhalb deiner blauen Bewegungsreichweite mit der Waffe \"<Ability:BOUND_WEAPON_NAME/>\" an. Beendet deine Runde nicht."

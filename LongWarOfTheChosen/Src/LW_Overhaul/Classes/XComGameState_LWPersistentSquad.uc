@@ -142,8 +142,10 @@ function XComGameState_LWPersistentSquad InitSquad(optional string sName = "", o
 
 	SquadBioTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
 	SquadBioTag.StrValue0 = DateString;
-	sSquadBiography = `XEXPAND.ExpandString(class'UIPersonnel_SquadBarracks'.default.strDefaultSquadBiography);		
-		
+	sSquadBiography = `XEXPAND.ExpandString(class'UIPersonnel_SquadBarracks'.default.strDefaultSquadBiography);
+
+	SquadImagePath = class'UIPersonnel_SquadBarracks'.default.SquadImagePaths[Rand(class'UIPersonnel_SquadBarracks'.default.SquadImagePaths.Length)];
+
 	return self;
 }
 
@@ -560,6 +562,7 @@ function PostMissionRevertSoldierStatus(XComGameState NewGameState, XComGameStat
 	local int SlotIndex, idx;
 	local StaffUnitInfo UnitInfo;
 	local XComGameState_LWPersistentSquad SquadState, UpdatedSquad;
+	local XComGameState_HeadquartersProjectHealSoldier HealProject;
 
 	//History = `XCOMHISTORY;
 	XComHQ = `XCOMHQ;
@@ -642,6 +645,16 @@ function PostMissionRevertSoldierStatus(XComGameState NewGameState, XComGameStat
 					}
 				}
 			}
+		}
+
+		// Tedster fix - resume heal project during squad cleanup
+		
+		HealProject = class'LWDLCHelpers'.static.GetHealProject(UnitState.GetReference());
+
+		if(HealProject != NONE && (HealProject.BlockCompletionDateTime.m_iYear == 9999 ||HealProject.BlockCompletionDateTime.m_iYear == 9999 ))
+		{
+			UnitState.SetStatus(eStatus_Healing);
+			HealProject.ResumeProject();
 		}
 
 		//if soldier still has OnMission status, set status to active (unless it's a SPARK that's healing)
@@ -994,13 +1007,21 @@ function int GetAlertnessModifierForCurrentInfiltration(optional XComGameState U
 	return iAlertnessModifier;
 }
 
-function float GetSecondsRemainingToFullInfiltration()
+function float GetSecondsRemainingToFullInfiltration(optional bool bBoost = false)
 {
 	local float TotalSecondsToInfiltrate;
 	local float SecondsOfInfiltration;
 	local float SecondsToInfiltrate;
 
-	TotalSecondsToInfiltrate = 3600.0 * GetHoursToFullInfiltrationCached(); // test caching here roo
+	if(bBoost)
+	{
+		TotalSecondsToInfiltrate = 3600.0 * GetHoursToFullInfiltrationCached() / class'XComGameState_LWPersistentSquad'.default.DefaultBoostInfiltrationFactor[`STRATEGYDIFFICULTYSETTING];
+	}
+	else
+	{
+		TotalSecondsToInfiltrate = 3600.0 * GetHoursToFullInfiltrationCached(); // test caching here roo
+	}
+	
 	SecondsOfInfiltration = class'X2StrategyGameRulesetDataStructures'.static.DifferenceInSeconds(GetCurrentTime(), StartInfiltrationDateTime);
 	SecondsToInfiltrate = TotalSecondsToInfiltrate - SecondsOfInfiltration;
 

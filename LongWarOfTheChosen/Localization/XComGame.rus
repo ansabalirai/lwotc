@@ -134,11 +134,11 @@ LocPromotionPopupText="<Bullet/> Огнемет - оружие малой дал
 
 [LWRocketLauncher X2AbilityTemplate]
 LocFriendlyName="Ракетомет"
-LocHelpText="Выстрел ракетой в указанную зону. <Ability:ROCKETSCATTER/>"
+LocHelpText="Выстрел ракетой в указанную зону.<Ability:ROCKETSCATTER/>"
 
 [LWBlasterLauncher X2AbilityTemplate]
 LocFriendlyName="Бластерная бомба"
-LocHelpText="Выстрел бластерной бомбой по указанной зоне. <Ability:ROCKETSCATTER/>"
+LocHelpText="Выстрел бластерной бомбой по указанной зоне.<Ability:ROCKETSCATTER/>"
 
 [NapalmX X2AbilityTemplate]
 LocFriendlyName="Напалм-Х"
@@ -3101,7 +3101,7 @@ strCharacterName="Странник-зверь"
 [TheLostBruteHP16_LW X2CharacterTemplate]
 strCharacterName="Странник-зверь"
 
-[LWTheLostBruteHP18 X2CharacterTemplate]
+[TheLostBruteHP18_LW X2CharacterTemplate]
 strCharacterName="Странник-зверь"
 
 [TheLostBruteHP21_LW X2CharacterTemplate]
@@ -3195,9 +3195,9 @@ LocPromotionPopupText="<Bullet/> Если вы убиваете противни
 [Dedication_LW X2AbilityTemplate]
 LocFriendlyName="Окрыляющая отвага"
 LocFlyOverText="Окрыляющая отвага"
-LocLongDescription="Свободное действие. Прибавляет <Ability:DEDICATION_MOBILITY/> к мобильности и игнорирует ответный огонь до конца хода. Ходов до перезарядки: <Ability:DEDICATION_COOLDOWN/>."
-LocHelpText="Свободное действие. Прибавляет <Ability:DEDICATION_MOBILITY/> к мобильности и игнорирует ответный огонь до конца хода. Ходов до перезарядки: <Ability:DEDICATION_COOLDOWN/>."
-LocPromotionPopupText="<Bullet/> Прибавляет <Ability:DEDICATION_MOBILITY/> к мобильности и игнорирует ответный огонь до конца хода.<br/><Bullet/> Свободное действие.<br/><Bullet/> Ходов до перезарядки: <Ability:DEDICATION_COOLDOWN/>.<br/>"
+LocLongDescription="Свободное действие. Прибавляет <Ability:DEDICATIONLW_MOBILITY/> к мобильности и игнорирует ответный огонь до конца хода. Ходов до перезарядки: <Ability:DEDICATION_COOLDOWN/>."
+LocHelpText="Свободное действие. Прибавляет <Ability:DEDICATIONLW_MOBILITY/> к мобильности и игнорирует ответный огонь до конца хода. Ходов до перезарядки: <Ability:DEDICATION_COOLDOWN/>."
+LocPromotionPopupText="<Bullet/> Прибавляет <Ability:DEDICATIONLW_MOBILITY/> к мобильности и игнорирует ответный огонь до конца хода.<br/><Bullet/> Свободное действие.<br/><Bullet/> Ходов до перезарядки: <Ability:DEDICATION_COOLDOWN/>.<br/>"
 
 [Corpsman_LW X2AbilityTemplate]
 LocFriendlyName="Санитар"
@@ -3420,6 +3420,12 @@ LocLongDescription="Атака по врагу в пределах одного 
 LocHelpText="Атака по врагу в пределах одного действия перемещения (оружие: <Ability:SecondaryWeaponName/>). Не заканчивает ход"
 LocPromotionPopupText="<Bullet/>Атака по врагу в пределах одного действия перемещения (оружие: <Ability:SecondaryWeaponName/>). Не заканчивает ход.<br/> <Bullet/>  <Ability:LIGHTNINGSLASH_COOLDOWN/> ходов перезарядки.<br/>"
 
+[LightningSlashLastAction_LW X2AbilityTemplate]
+LocFriendlyName="Молниеносный удар"
+LocLongDescription="Атака по врагу в пределах одного действия перемещения (оружие: <Ability:SecondaryWeaponName/>). Не заканчивает ход"
+LocHelpText="Атака по врагу в пределах одного действия перемещения (оружие: <Ability:SecondaryWeaponName/>). Не заканчивает ход"
+LocPromotionPopupText="<Bullet/>Атака по врагу в пределах одного действия перемещения (оружие: <Ability:SecondaryWeaponName/>). Не заканчивает ход.<br/> <Bullet/>  <Ability:LIGHTNINGSLASH_COOLDOWN/> ходов перезарядки.<br/>"
+
 [InspireAgility_LW X2AbilityTemplate]
 LocFriendlyName="Не зевай!"
 LocFlyOverText="Не зевай!"
@@ -3518,6 +3524,10 @@ BonusEmptyText="Ускоряет восстановление солдат."
 BonusText="ТЕМП ВОССТАНОВЛЕНИЯ +%AVENGERBONUS%"
 FilledText="%UNITNAME ускоряет восстановление солдат после ранений с помощью продвинутого медицинского оборудования."
 LockedText="НЕДОСТУПНО: ПРИОБРЕТИТЕ УЛУЧШЕНИЕ"
+
+[CovertActionIntenseTrainingStaffSlot X2StaffSlotTemplate]
+EmptyText="СОЛДАТ"
+BonusText="НА СЕКРЕТНОМ ЗАДАНИИ"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Techs ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -6038,6 +6048,11 @@ Description="Увеличивает время задания на 4 хода."
 ; End Translated
 
 ; LWOTC Translated
+
+[SlightlyLargeMap X2SitRepTemplate]
+FriendlyName="Марш-бросок"
+Description="Местность операции больше чем обычно, может потребоваться больше времени на выполнение задания."
+
 [LargeMap X2SitRepTemplate]
 FriendlyName="Марш-бросок"
 Description="Местность операции больше чем обычно, может потребоваться больше времени на выполнение задания."

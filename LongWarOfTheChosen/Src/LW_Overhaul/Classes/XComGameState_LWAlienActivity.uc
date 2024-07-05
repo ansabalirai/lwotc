@@ -5,6 +5,12 @@
 //---------------------------------------------------------------------------------------
 class XComGameState_LWAlienActivity extends XComGameState_GeoscapeEntity config(LW_Overhaul);
 
+struct LWRewardScalar
+{
+	var Name ActivityName;
+	var float RewardScalar;
+};
+
 var protected name							m_TemplateName;
 var protected X2LWAlienActivityTemplate		m_Template;
 
@@ -50,9 +56,15 @@ var config array<string> GuaranteeChosenInMissionTypes;
 
 var config array<string> NO_SIT_REP_MISSION_TYPES;
 
+var StateObjectReference AssociatedChosen;
+
+var config array<string> SlightlyLargeMaps;
+
 var config array<string> LargeMaps;
 
 var config array<string> VeryLargeMaps;
+
+var config array<LWRewardScalar> ActivityRewardScalars;
 
 //#############################################################################################
 //----------------   REQUIRED FROM BASEOBJECT   -----------------------------------------------
@@ -478,10 +490,11 @@ function bool SpawnMission(XComGameState NewGameState)
 	local int idx;
 	local Vector2D v2Loc;
 	local name MissionFamily;
-	local float SecondsUntilActivityComplete, DesiredSecondsOfMissionDuration;
+	local float SecondsUntilActivityComplete, DesiredSecondsOfMissionDuration, RewardScalar;
 	local XComGameState_HeadquartersResistance ResHQ;
 
 	MissionFamily = GetNextMissionFamily(NewGameState);
+	`LWTrace("Mission Family selected:" @MissionFamily);
 	if(MissionFamily == '')
 		return false;
 
@@ -509,11 +522,22 @@ function bool SpawnMission(XComGameState NewGameState)
 		RewardNames.Remove(idx, 1); // peel off the first Reward_POI, since base-game only supports one per mission.
 	}
 
+	idx = default.ActivityRewardScalars.Find('ActivityName', ActivityTemplate.DataName);
+
+	if(idx != INDEX_NONE)
+	{
+		RewardScalar = ActivityRewardScalars[idx].RewardScalar;
+	}
+	else
+	{
+		RewardScalar = 1.0;
+	}
+
 	foreach RewardNames(RewardName)
 	{
 		RewardTemplate = X2RewardTemplate(StratMgr.FindStrategyElementTemplate(RewardName)); 
 		RewardState = RewardTemplate.CreateInstanceFromTemplate(NewGameState);
-		RewardState.GenerateReward(NewGameState, 1.0 /*reward scalar */ , PrimaryRegion);
+		RewardState.GenerateReward(NewGameState, RewardScalar /*reward scalar */ , PrimaryRegion);
 		MissionRewards.AddItem(RewardState);
 	}
 
@@ -598,12 +622,19 @@ function name GetNextMissionFamily(XComGameState NewGameState)
 	local array<int> ExistingMissionFamilyCounts, SelectArray;
 	local XComGameState_MissionSite MissionSite;
 	local int idx, i, j, FamilyIdx;
+	local name MissionFamily;
 
 	ActivityTemplate = GetMyTemplate();
 	if (CurrentMissionLevel >= ActivityTemplate.MissionTree.Length)
 		return '';
 
 	PossibleMissionFamilies = ActivityTemplate.MissionTree[CurrentMissionLevel].MissionFamilies;
+
+	`LWTrace("Possible Mission Families:");
+	foreach PossibleMIssionFamilies (MissionFamily)
+	{
+		`LWTrace(MissionFamily);
+	}
 
 	if(PossibleMissionFamilies.Length > 0)
 	{
@@ -662,8 +693,8 @@ function SetMissionData(name MissionFamily, XComGameState_MissionSite MissionSta
 	local PlotDefinition SelectedPlotDef;
 	local PlotTypeDefinition PlotTypeDef;
 	local array<name> SourceSitReps;
-	local name SitRepName;
-	local array<name> SitRepNames;
+	local name SitRepName, SitrepNameToRemove;
+	local array<name> SitRepNames, SitrepsToRemove;
 	local String AdditionalTag;
 	// End LWOTC vars
 	// Variables for Issue #157
@@ -740,6 +771,8 @@ function SetMissionData(name MissionFamily, XComGameState_MissionSite MissionSta
 	}
 	// End LWOTC additions
 
+	`LWTrace("Mission Creation choosing quest item");
+
 	MissionState.GeneratedMission.MissionQuestItemTemplate = MissionMgr.ChooseQuestItemTemplate(MissionState.Source, MissionReward, MissionState.GeneratedMission.Mission, (MissionState.DarkEvent.ObjectID > 0));
 
 	if(MissionState.GeneratedMission.Mission.sType == "")
@@ -747,9 +780,10 @@ function SetMissionData(name MissionFamily, XComGameState_MissionSite MissionSta
 		`Redscreen("GetMissionDefinitionForFamily() failed to generate a mission with: \n"
 						$ " Family: " $ MissionFamily);
 	}
+	`LWTrace("Mission Generation choosing plot and biome");
 
 	// find a plot that supports the biome and the mission
-	SelectBiomeAndPlotDefinition(MissionState, Biome, SelectedPlotDef, SitRepNames);
+	SelectBiomeAndPlotDefinition(MissionState, Biome, SelectedPlotDef, SitrepsToRemove, SitRepNames);
 
 	// do a weighted selection of our plot
 	MissionState.GeneratedMission.Plot = SelectedPlotDef;
@@ -760,6 +794,18 @@ function SetMissionData(name MissionFamily, XComGameState_MissionSite MissionSta
 	// Add SitReps forced by Plot Type
 	// Make sure The Lost are added to Abandoned City plots
 	PlotTypeDef = ParcelMgr.GetPlotTypeDefinition(MissionState.GeneratedMission.Plot.strType);
+
+	// Clear invalid sitreps
+	`LWTrace("SitrepsToRemove length:" @SitrepsToRemove.Length);
+	if(SitrepsToRemove.Length > 0)
+	{
+		foreach SitrepsToRemove (SitrepNameToRemove)
+		{
+			`LWTrace("Removing invalid Sitrep" @SitrepNameToRemove);
+			SitrepNames.RemoveItem(SitrepNameToRemove);
+			MissionState.GeneratedMission.SitReps.RemoveItem(SitrepNameToRemove);
+		}
+	}
 
 	foreach PlotTypeDef.ForcedSitReps(SitRepName)
 	{
@@ -777,12 +823,12 @@ function SetMissionData(name MissionFamily, XComGameState_MissionSite MissionSta
 		}
 	}
 
+	MapName = MissionState.GeneratedMission.Plot.MapName;
 	// Add sit reps for large and very large maps for fixed evac missions that
 	// have an evac timer rather than an objective timer.
 	if (class'UIUtilities_LW'.default.FixedExitMissions.Find(MissionState.GeneratedMission.Mission.MissionName) != INDEX_NONE &&
 		class'UIUtilities_LW'.default.EvacTimerMissions.Find(MissionState.GeneratedMission.Mission.MissionName) != INDEX_NONE)
 	{
-		MapName = MissionState.GeneratedMission.Plot.MapName;
 		if (instr(MapName, "vlgObj") != INDEX_NONE)
 		{
 			MissionState.GeneratedMission.SitReps.AddItem('VeryLargeMap');
@@ -804,6 +850,11 @@ function SetMissionData(name MissionFamily, XComGameState_MissionSite MissionSta
 		{
 			MissionState.GeneratedMission.SitReps.AddItem('VeryLargeMap');
 		}
+		
+	}
+	else if (default.SlightlyLargeMaps.Find(MapName) != INDEX_NONE) // added here specificaly for psi transmitter and the sewers map.
+	{
+		MissionState.GeneratedMission.SitReps.AddItem('SlightlyLargeMap');
 	}
 
 	// Start Issue #157
@@ -931,6 +982,8 @@ static function bool WillChosenAppearOnMission(XComGameState_AdventChosen Chosen
 {
 	local XComGameState_MissionSiteChosenAssault ChosenAssaultMission;
 
+	`LWTrace("Checking Chosen" @ChosenState.GetChosenTemplate().CharacterGroupName);
+
 	// If the Chosen doesn't control the region, they won't appear on the mission
 	if (!ChosenState.ChosenControlsRegion(MissionState.Region))
 	{
@@ -967,28 +1020,28 @@ static function bool WillChosenAppearOnMission(XComGameState_AdventChosen Chosen
 //---------------------------------------------------------------------------------------
 // Code (next 3 functions) copied from XComGameState_MissionSite
 //
-function SelectBiomeAndPlotDefinition(XComGameState_MissionSite MissionState, out string Biome, out PlotDefinition SelectedDef, optional array<name> SitRepNames)
+function SelectBiomeAndPlotDefinition(XComGameState_MissionSite MissionState, out string Biome, out PlotDefinition SelectedDef, out array<name>SitrepsToRemove,  optional array<name> SitRepNames)
 {
-	local XComParcelManager ParcelMgr;
 	local MissionDefinition MissionDef;
-	local string PrevBiome;
 	local array<string> ExcludeBiomes;
 
-	ParcelMgr = `PARCELMGR;
 	ExcludeBiomes.Length = 0;
 
 	MissionDef = MissionState.GeneratedMission.Mission;
 	Biome = SelectBiome(MissionState, ExcludeBiomes);
-	PrevBiome = Biome;
+
+	`LWTrace("Selected biome:" @Biome);
 
 	while(!SelectPlotDefinition(MissionDef, Biome, SelectedDef, ExcludeBiomes, SitRepNames))
 	{
 		Biome = SelectBiome(MissionState, ExcludeBiomes);
 
-		if(Biome == PrevBiome)
+		if(Biome == "")
 		{
-			`Redscreen("Could not find valid plot for mission!\n" $ " MissionType: " $ MissionDef.MissionName);
-			SelectedDef = ParcelMgr.arrPlots[0];
+			ExcludeBiomes.Length = 0;
+			Biome = SelectBiome(MissionState, ExcludeBiomes);
+			`LWTrace("Could not find a valid plot for current Sitrep combination, adjusting sitreps instead");
+			SelectAlternatePlotDef(MissionDef, Biome, SelectedDef, ExcludeBiomes, SitrepsToRemove, SitRepNames);
 			return;
 		}
 	}
@@ -1070,7 +1123,7 @@ function string SelectBiome(XComGameState_MissionSite MissionState, out array<st
 }
 
 //---------------------------------------------------------------------------------------
-function bool SelectPlotDefinition(MissionDefinition MissionDef, string Biome, out PlotDefinition SelectedDef, out array<string> ExcludeBiomes, optional array<name> SitRepNames)
+function bool SelectPlotDefinition(MissionDefinition MissionDef, string Biome, out PlotDefinition SelectedDef, out array<string> ExcludeBiomes, optional out array<name> SitRepNames)
 {
 	local XComParcelManager ParcelMgr;
 	local array<PlotDefinition> ValidPlots;
@@ -1082,6 +1135,7 @@ function bool SelectPlotDefinition(MissionDefinition MissionDef, string Biome, o
 	ParcelMgr = `PARCELMGR;
 	ParcelMgr.GetValidPlotsForMission(ValidPlots, MissionDef, Biome);
 	SitRepMgr = class'X2SitRepTemplateManager'.static.GetSitRepTemplateManager();
+	`LWDebug("Plot selection: Valid Plots length:" @ValidPlots.Length);
 
 	// pull the first one that isn't excluded from strategy, they are already in order by weight
 	foreach ValidPlots(SelectedDef)
@@ -1093,6 +1147,7 @@ function bool SelectPlotDefinition(MissionDefinition MissionDef, string Biome, o
 
 			if (SitRep != none && SitRep.ExcludePlotTypes.Find(SelectedDef.strType) != INDEX_NONE)
 			{
+			//	`LWTrace("PlotDef" @SelectedDef.MapName @"invalid for sitrep" @Sitrep.DataName);
 				AllowPlot = 0;
 			}
 		}
@@ -1106,11 +1161,37 @@ function bool SelectPlotDefinition(MissionDefinition MissionDef, string Biome, o
 			return true;
 		}
 	}
-
+	`LWDebug("Biome"@Biome @"Added to the exclude list.");
 	ExcludeBiomes.AddItem(Biome);
 	return false;
 }
 // End copied code
+
+static function SelectAlternatePlotDef(MissionDefinition MissionDef, string Biome, out PlotDefinition SelectedDef, out array<string> ExcludeBiomes, out array<name> SitrepsToRemove, optional array<name> SitRepNames)
+{
+	local XComParcelManager ParcelMgr;
+	local array<PlotDefinition> ValidPlots;
+	local X2SitRepTemplateManager SitRepMgr;
+	local name SitRepName;
+	local X2SitRepTemplate SitRep;
+
+	ParcelMgr = `PARCELMGR;
+	ParcelMgr.GetValidPlotsForMission(ValidPlots, MissionDef, Biome);
+	SitRepMgr = class'X2SitRepTemplateManager'.static.GetSitRepTemplateManager();
+
+	SelectedDef = ValidPlots[0];
+
+	foreach SitRepNames(SitRepName)
+	{
+		SitRep = SitRepMgr.FindSitRepTemplate(SitRepName);
+
+		if (SitRep != none && SitRep.ExcludePlotTypes.Find(SelectedDef.strType) != INDEX_NONE)
+		{
+			SitrepsToRemove.AddItem(SitRepName);		
+		}
+	}
+	return;
+}
 
 // Triggers an event that allows mods to override whether a plot is valid
 // for a given mission type or not.

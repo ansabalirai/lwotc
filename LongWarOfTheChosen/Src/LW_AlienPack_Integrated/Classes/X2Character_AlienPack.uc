@@ -515,7 +515,7 @@ static function X2CharacterTemplate CreateTemplate_Sidewinder(name TemplateName)
 		case 'SidewinderM3':
 			CharTemplate.Abilities.AddItem('Infighter');
 		case 'SidewinderM2':
-			CharTemplate.Abilities.AddItem('HitandSlither');
+			CharTemplate.Abilities.AddItem('Reposition_LW');
 		case 'SidewinderM1':
 			CharTemplate.Abilities.AddItem('Shadowstep');
 		default:
@@ -580,6 +580,7 @@ static function X2CharacterTemplate CreateTemplate_ArchonM2_LW()
 	CharTemplate.bCanUse_eTraversal_Land = true;
 	CharTemplate.bAppearanceDefinesPawn = false;
 	CharTemplate.bCanTakeCover = false;
+	CharTemplate.bImmueToFalling = true;
 
 	CharTemplate.bIsAlien = true;
 	CharTemplate.bIsAdvent = false;
@@ -1411,6 +1412,7 @@ static function X2CharacterTemplate CreateTemplate_Drone(name TemplateName)
 	CharTemplate.bCanUse_eTraversal_Land = true;
 	CharTemplate.bAppearanceDefinesPawn = false;    
 	CharTemplate.bCanTakeCover = false;
+	CharTemplate.bImmueToFalling = true;
 
 	CharTemplate.bIsAlien = false;
 	CharTemplate.bIsAdvent = true;
@@ -1457,7 +1459,7 @@ static function X2CharacterTemplate CreateTemplate_ChryssalidSoldier()
 	CharTemplate.BehaviorClass=class'XGAIBehavior';
 	CharTemplate.strPawnArchetypes.AddItem("LWHiveQueen.Archetypes.ARC_GameUnit_ChryssalidM2");
 	Loot.ForceLevel=0;
-	Loot.LootTableName='Chryssalid_BaseLoot';  
+	Loot.LootTableName='ChryssalidSoldier_BaseLoot';  
 	CharTemplate.Loot.LootReferences.AddItem(Loot);
 
 	// Timed Loot
@@ -1533,7 +1535,7 @@ static function X2CharacterTemplate CreateTemplate_HiveQueen()
 	CharTemplate.BehaviorClass=class'XGAIBehavior';
 	CharTemplate.strPawnArchetypes.AddItem("LWHiveQueen.Archetypes.ARC_GameUnit_ChryssalidM3");
 	Loot.ForceLevel=0;
-	Loot.LootTableName='Chryssalid_BaseLoot';  
+	Loot.LootTableName='HiveQueen_BaseLoot';  
 	CharTemplate.Loot.LootReferences.AddItem(Loot);
 
 	// Timed Loot

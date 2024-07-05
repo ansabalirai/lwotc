@@ -22,6 +22,10 @@ struct ItemTableEntry
 	var int CoreCost;
 	var name SpecialItemTemplateName;
 	var int SpecialItemCost;
+	var name SpecialItem2TemplateName;
+	var int SpecialItem2Cost;
+	var name SpecialItem3TemplateName;
+	var int SpecialItem3Cost;
 	var int TradingPostValue;
 	var int RequiredEngineeringScore;
 	var int PointsToComplete;
@@ -44,6 +48,10 @@ struct ItemTableEntry
 		CoreCost=0
 		SpecialItemTemplateName=None
 		SpecialItemCost=0
+		SpecialItem2TemplateName=None
+		SpecialItem2Cost=0
+		SpecialItem3TemplateName=None
+		SpecialItem3Cost=0
 		TradingPostValue=0
 		RequiredEngineeringScore=0
 		PointsToComplete=0
@@ -70,6 +78,10 @@ struct TechTableEntry
 	var int ReqItemCost1;
 	var name ReqItemTemplateName2;
 	var int ReqItemCost2;
+	var name ReqItemTemplateName3;
+	var int ReqItemCost3;
+	var name ReqItemTemplateName4;
+	var int ReqItemCost4;
 	var name ItemGranted;
 	var int RequiredScienceScore;
 	var int RequiredEngineeringScore;
@@ -91,6 +103,10 @@ struct TechTableEntry
 		ReqItemCost1=0
 		ReqItemTemplateName2=None
 		ReqItemCost2=0
+		ReqItemTemplateName3=None
+		ReqItemCost3=0
+		ReqItemTemplateName4=None
+		ReqItemCost4=0
 		ItemGranted=none
 		RequiredScienceScore=0
 		RequiredEngineeringScore=0
@@ -750,6 +766,7 @@ function ModifyGrenadeEffects(X2ItemTemplate Template, int Difficulty)
 	if(GrenadeTemplate == none)
 		return;
 
+	//SOME AREAS DEPRECATED. ALSO WHY WASNT'T DENSE SMOKE HERE?
 	switch(GrenadeTemplate.DataName)
 	{
 		case 'FlashbangGrenade':
@@ -926,7 +943,7 @@ function ModifyAbilitiesGeneral(X2AbilityTemplate Template, int Difficulty)
 	local X2AbilityCost_Charges             ChargeCost;
 	//local X2Effect_SoulSteal_LW           StealEffect;
 	local X2Effect_Guardian_LW              GuardianEffect;
-	local X2Effect                          ShotEffect;
+	//local X2Effect                          ShotEffect;
 	local X2Effect_MaybeApplyDirectionalWorldDamage WorldDamage;
 	local X2Effect_DeathFromAbove_LW        DeathEffect;
 	local X2Effect_ApplyWeaponDamage        WeaponDamageEffect;
@@ -937,11 +954,12 @@ function ModifyAbilitiesGeneral(X2AbilityTemplate Template, int Difficulty)
 	local X2AbilityCooldown_Shared			CooldownShared;
 	local X2AbilityMultiTarget_Cone			ConeMultiTarget;
 	local X2AbilityCooldown_AllInstances 	AllInstancesCooldown;
+	local X2Effect_LWCoveringFireIgnoreCover CoveringFireEffect;
 
 	// WOTC TODO: Trying this out. Should be put somewhere more appropriate.
 	if (Template.DataName == 'ReflexShotModifier')
 	{
-		`Log("TRACE: Using AbilityTemplateManager to get 'StandardShot'");
+		`LWTrace("Using AbilityTemplateManager to get 'StandardShot'");
 		Template.LocFriendlyName = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate('StandardShot').LocFriendlyName;
 	}
 
@@ -1134,7 +1152,7 @@ function ModifyAbilitiesGeneral(X2AbilityTemplate Template, int Difficulty)
 		UnitPropertyCondition.ExcludeFriendlyToSource = false;
 		Template.AbilityTargetConditions.AddItem(UnitPropertyCondition);
 		Template.AdditionalAbilities.AddItem('StasisShield');
-		Template.PrerequisiteAbilities.AddItem('Fuse');
+		Template.PrerequisiteAbilities.AddItem('Solace_LW');
 	}
 
 	if (Template.DataName == 'StasisShield')
@@ -1270,11 +1288,8 @@ function ModifyAbilitiesGeneral(X2AbilityTemplate Template, int Difficulty)
 
 	if (Template.DataName == 'BulletShred')
 	{
-		StandardAim = new class'X2AbilityToHitCalc_StandardAim';
-		StandardAim.bHitsAreCrits = false;
-		StandardAim.BuiltInCritMod = default.RUPTURE_CRIT_BONUS;
-		Template.AbilityToHitCalc = StandardAim;
-		Template.AbilityToHitOwnerOnMissCalc = StandardAim;
+		X2AbilityToHitCalc_StandardAim(Template.AbilityToHitCalc).bHitsAreCrits = false;
+		X2AbilityToHitCalc_StandardAim(Template.AbilityToHitCalc).BuiltInCritMod = default.RUPTURE_CRIT_BONUS;
 
 		for (k = 0; k < Template.AbilityTargetConditions.Length; k++)
 		{
@@ -1323,7 +1338,24 @@ function ModifyAbilitiesGeneral(X2AbilityTemplate Template, int Difficulty)
 
 		Template.AssociatedPassives.AddItem('NeutralizingAgents_LW');
 		Template.AddTargetEffect(RemoveEffects);
+
+		// new Covering Fire effect
+		CoveringFireEffect = new class'X2Effect_LWCoveringFireIgnoreCover';
+		CoveringFireEffect.BuildPersistentEffect(1, false, false, false, eGameRule_PlayerTurnBegin);
+		CoveringFireEffect.bForThreatAssessment = true;
+		AbilityCondition = new class'X2Condition_AbilityProperty';
+		AbilityCondition.OwnerHasSoldierAbilities.AddItem('ThreatAssessment');
+		CoveringFireEffect.TargetConditions.AddItem(AbilityCondition);
+		Template.AddTargetEffect(CoveringFireEffect);
 	
+	}
+
+	if(Template.DataName == 'CoveringFire')
+	{
+		CoveringFireEffect = new class'X2Effect_LWCoveringFireIgnoreCover';
+		CoveringFireEffect.BuildPersistentEffect(1, true, true);
+		CoveringFireEffect.bForThreatAssessment = false;
+		Template.AddTargetEffect(CoveringFireEffect);
 	}
 
 	if (Template.DataName == 'KillZone' || Template.DataName == 'Deadeye' || Template.DataName == 'BulletShred')
@@ -1360,21 +1392,6 @@ function ModifyAbilitiesGeneral(X2AbilityTemplate Template, int Difficulty)
 
 	if (Template.DataName == 'ChainShot')
 	{
-		for (k = 0; k < Template.AbilityCosts.length; k++)
-		{
-			ActionPointCost = X2AbilityCost_ActionPoints(Template.AbilityCosts[k]);
-			if (ActionPointCost != none)
-			{
-				Template.AbilityCosts.RemoveItem(ActionPointCost);
-				ActionPointCost = new class'X2AbilityCost_ActionPoints';
-			
-				ActionPointCost.iNumPoints = 0;
-				ActionPointCost.bAddWeaponTypicalCost = true;
-				ActionPointCost.bConsumeAllPoints = true;
-		
-				Template.AbilityCosts.AddItem(ActionPointCost);
-			}
-		}
 		Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_HideIfOtherAvailable;
 		Template.HideIfAvailable.AddItem('ChainShotSnapShot');
 		CooldownShared = new class'X2AbilityCooldown_Shared';
@@ -1491,7 +1508,7 @@ function ModifyAbilitiesGeneral(X2AbilityTemplate Template, int Difficulty)
 
 	if (Template.DataName == 'StandardShot')
 	{
-		`LOG ("Adding ReflexShotModifier to StandardShot");
+		`LWTrace("Adding ReflexShotModifier to StandardShot");
 		Template.AdditionalAbilities.AddItem('ReflexShotModifier');
 	}
 
@@ -1574,6 +1591,11 @@ function ModifyAbilitiesGeneral(X2AbilityTemplate Template, int Difficulty)
 			break;
 		default:
 			break;
+	}
+
+	if(Template.DataName == 'LongWatch')
+	{
+		Template.OverrideAbilities.Length = 0;
 	}
 
 	if (Template.DataName == 'Shadowfall')
@@ -1714,7 +1736,7 @@ function ModifyAbilitiesGeneral(X2AbilityTemplate Template, int Difficulty)
 	// When completeing a control robot hack remove any previous disorient effects as is done for dominate.
 	if (Template.DataName == 'HackRewardControlRobot' || Template.DataName == 'HackRewardControlRobotWithStatBoost')
 	{
-		`Log("Adding disorient removal to " $ Template.DataName);
+		`LWTrace("Adding disorient removal to " $ Template.DataName);
 		Template.AddTargetEffect(class'X2StatusEffects'.static.CreateMindControlRemoveEffects());
 		Template.AddTargetEffect(class'X2StatusEffects'.static.CreateStunRecoverEffect());
 	}
@@ -1759,6 +1781,7 @@ function ModifyAbilitiesGeneral(X2AbilityTemplate Template, int Difficulty)
 		Template.AbilityShooterConditions.InsertItem(0, new class'X2Condition_MasteredEnemy');
 	}
 
+	/*
 	switch (Template.DataName)
 	{
 		case 'OverwatchShot':
@@ -1774,7 +1797,7 @@ function ModifyAbilitiesGeneral(X2AbilityTemplate Template, int Difficulty)
 			ShotEffect.TargetConditions.AddItem(class'X2Ability_DefaultAbilitySet'.static.OverwatchTargetEffectsCondition());
 			Template.AddTargetEffect(ShotEffect);
 			break;
-	}
+	} */
 
 	if (default.USE_ACTION_ICON_COLORS && !class'Helpers_LW'.default.bWOTCCostBasedAbilityColorsActive)
 	{
@@ -1869,7 +1892,7 @@ function ModifyAbilitiesGeneral(X2AbilityTemplate Template, int Difficulty)
 
 	if (DoubleTapAbilities.Find(Template.DataName) >= 0)
 	{
-		`LOG ("Adding Double Tap to" @ Template.DataName);
+		`LWTrace("Adding Double Tap to" @ Template.DataName);
 		AddDoubleTapActionPoint (Template, class'X2Ability_LW_SharpshooterAbilitySet'.default.DoubleTapActionPoint);
 	}
 
@@ -1942,7 +1965,7 @@ function AddReflexActionPoint(X2AbilityTemplate Template, Name ActionPointName)
 		}
 	}
 
-	`Log("Cannot add reflex ability " $ Template.DataName $ ": Has no action point cost");
+	`LWTrace("Cannot add reflex ability " $ Template.DataName $ ": Has no action point cost");
 }
 
 function AddDoubleTapActionPoint(X2AbilityTemplate Template, Name ActionPointName)
@@ -2161,7 +2184,7 @@ function GeneralCharacterMod(X2CharacterTemplate Template, int Difficulty)
 
 	if (class'X2Effect_TransferMecToOutpost'.default.VALID_FULLOVERRIDE_TYPES_TO_TRANSFER_TO_OUTPOST.Find(Template.DataName) >= 0)
 	{
-		`Log("Adding evac to " $ Template.DataName);
+		`LWTrace("Adding evac to " $ Template.DataName);
 		Template.Abilities.AddItem('Evac');
 	}
 
@@ -2262,56 +2285,86 @@ function GeneralCharacterMod(X2CharacterTemplate Template, int Difficulty)
 			Template.Abilities.AddItem('MC_Stock_Strike');
 			Template.Abilities.AddItem('GetUp');
 			break;
-		//Need to rescale the loadouts of these templates, and can't think of a better way since it needs to be by hp basis 
+		case 'PsiZombie':
+			Template.Abilities.AddItem('PsiZombieImmunitiesPassive');
+			break;
+		//Need to rescale the loadouts of these templates, and can't think of a better way since it needs to be by hp basis
+		case 'TheLost':
+			Template.Abilities.AddItem('LostImmunitiesPassive');
+			break;
 		case 'TheLostHP2':
 		case 'TheLostHP3':
+			Template.Abilities.AddItem('LostImmunitiesPassive');
 			Template.DefaultLoadout='TheLostTier1_Loadout';
 			break;
 		case 'TheLostHP4':
 		case 'TheLostHP5':
 		case 'TheLostHP6':
+			Template.Abilities.AddItem('LostImmunitiesPassive');
 			Template.DefaultLoadout='TheLostTier2_Loadout';
 			break;
 		case 'TheLostHP7':
 		case 'TheLostHP8':
 		case 'TheLostHP9':
+			Template.Abilities.AddItem('LostImmunitiesPassive');
 			Template.DefaultLoadout='TheLostTier3_Loadout';
 			break;
 		case 'TheLostHP10':
 		case 'TheLostHP11':
 		case 'TheLostHP12':
+			Template.Abilities.AddItem('LostImmunitiesPassive');
 			Template.DefaultLoadout='TheLostTier4_Loadout';
 			break;
 
+		case 'TheLostDasher':
+			Template.Abilities.AddItem('LostImmunitiesPassive');
+			break;
 		case 'TheLostDasherHP2':
 		case 'TheLostDasherHP3':
+			Template.Abilities.AddItem('LostImmunitiesPassive');
 			Template.DefaultLoadout='TheLostDasherTier1_Loadout';
 			break;
 		case 'TheLostDasherHP4':
 		case 'TheLostDasherHP5':
 		case 'TheLostDasherHP6':
+			Template.Abilities.AddItem('LostImmunitiesPassive');
 			Template.DefaultLoadout='TheLostDasherTier2_Loadout';
 			break;
 		case 'TheLostDasherHP7':
 		case 'TheLostDasherHP8':
 		case 'TheLostDasherHP9':
+			Template.Abilities.AddItem('LostImmunitiesPassive');
 			Template.DefaultLoadout='TheLostDasherTier3_Loadout';
 			break;
 		case 'TheLostDasherHP10':
 		case 'TheLostDasherHP11':
 		case 'TheLostDasherHP12':
+			Template.Abilities.AddItem('LostImmunitiesPassive');
 			Template.DefaultLoadout='TheLostDasherTier4_Loadout';
 			break;
 		case 'SpectralStunLancerM1':
 		case 'SpectralStunLancerM2':
 		case 'SpectralStunLancerM3':
 		case 'SpectralStunLancerM4':
-			Template.Abilities.AddItem('StunImpairingAbility');
+			Template.Abilities.AddItem('SpectralStunImpairingAbility');
+			// Give them mental ability
+			Template.Abilities.AddItem('MindShield');
 			// make them move before chosen
 			Template.InitiativePriority = -101;
+			Template.DefaultLoadout='SpectralStunLancerM1_Loadout';
 			break;
 		case 'HostileVIPCivilian':
 			Template.Abilities.AddItem('Shadowstep');
+			break;
+		case 'LostTowersTurretM1':
+		case 'AdvShortTurretM3':
+		case 'AdvShortTurretM2':
+		case 'AdvShortTurretM1':
+		case 'AdvShortTurret':
+		case 'AdvTurretM3':
+		case 'AdvTurretM2':
+		case 'AdvTurretM1':
+			Template.Abilities.AddItem('RobotImmunities');
 			break;
 		default:
 			break;
@@ -2348,13 +2401,16 @@ function GeneralCharacterMod(X2CharacterTemplate Template, int Difficulty)
 		Template.InitiativePriority = -100;
 
 		Template.Abilities.AddItem('WarlockReactionMobility_LW');
+		Template.Abilities.AddItem('WarlockReactionMobility2_LW');
 
 		//Since they no longer have the ability by default
 		Template.Abilities.AddItem('ChosenSummonFollowers');
 
 		Template.ImmuneTypes.AddItem('Frost');
-
-
+	}
+	if (Template.CharacterGroupName == 'SpectralZombie')
+	{
+		Template.Abilities.AddItem('SpectralZombieImmunitiesPassive');
 	}
 	if (Template.CharacterGroupName == 'ChosenSniper')
 	{
@@ -2371,7 +2427,7 @@ function GeneralCharacterMod(X2CharacterTemplate Template, int Difficulty)
 		Template.Abilities.AddItem('LongWatch');
 		Template.Abilities.AddItem('quickdraw');
 		Template.Abilities.AddItem('ChosenImmuneMelee');
-		Template.Abilities.AddItem('Squadsight');
+		//Template.Abilities.AddItem('Squadsight');
 		
 		Template.Abilities.AddItem('FreeGrenades');
 		Template.Abilities.AddItem('Infighter');
@@ -2380,8 +2436,8 @@ function GeneralCharacterMod(X2CharacterTemplate Template, int Difficulty)
 		Template.Abilities.AddItem('TriggerDamagedTeleport_LW');
 		Template.Abilities.AddItem('MovingTarget_LW');
 
-		Template.Abilities.AddItem('HunterReactionMobility_LW');
-		Template.Abilities.AddItem('HunterReactionMobBoost_LW');
+		//Template.Abilities.AddItem('HunterReactionMobility_LW');
+		//Template.Abilities.AddItem('HunterReactionMobBoost_LW');
 
 		Template.ImmuneTypes.AddItem('Frost');
 		Template.InitiativePriority = -100;
@@ -2620,6 +2676,7 @@ function ReconfigGear(X2ItemTemplate Template, int Difficulty)
 		case 'ChosenRifle_XCOM':
 			WeaponTemplate.Abilities.AddItem('OverbearingSuperiority_LW');
 			WeaponTemplate.OnAcquiredFn = none;
+			WeaponTemplate.NumUpgradeSlots = 2;
 			//WeaponTemplate.SetUIStatMarkup(class'XLocalizedData'.default.AimLabel, eStat_Offense, class'X2Item_XpackWeapons'.default.CHOSENRIFLE_XCOM_AIM);
 			break;
 		case 'ChosenSniperRifle_XCOM':
@@ -2628,6 +2685,7 @@ function ReconfigGear(X2ItemTemplate Template, int Difficulty)
 			//WeaponTemplate.Abilities.RemoveItem('Reload');
 			//WeaponTemplate.Abilities.AddItem('ComplexReload_LW'); 
 			WeaponTemplate.OnAcquiredFn = none;
+			WeaponTemplate.NumUpgradeSlots = 2;
 			break;
 		case 'ChosenSword_XCOM':
 			WeaponTemplate.Abilities.AddItem('XCOMBloodThirst_LW');
@@ -2646,6 +2704,7 @@ function ReconfigGear(X2ItemTemplate Template, int Difficulty)
 			WeaponTemplate.Abilities.AddItem('Vampirism_LW');
 			WeaponTemplate.Abilities.AddItem('ImpactCompensation_LW');
 			WeaponTemplate.OnAcquiredFn = none;
+			WeaponTemplate.NumUpgradeSlots = 2;
 			break;
 		case 'ChosenSniperPistol_XCOM':
 			WeaponTemplate.Abilities.AddItem('Fatality_LW');
@@ -2711,7 +2770,8 @@ function ReconfigGear(X2ItemTemplate Template, int Difficulty)
 			case 'ChosenSniperRifle_MG':
 			case 'ChosenSniperRifle_BM':
 			case 'ChosenSniperRifle_T4':
-				WeaponTemplate.iIdealRange =25;
+			case 'ChosenSniperRifle_T5':
+				WeaponTemplate.iIdealRange = 15;
 				break;
 			default:
 				break;
@@ -2753,11 +2813,11 @@ function ReconfigGear(X2ItemTemplate Template, int Difficulty)
 		}
 		if (GremlinTemplate.DataName == 'SparkBit_MG')
 		{
-			GremlinTemplate.HealingBonus = 1;
+			GremlinTemplate.HealingBonus = 2;
 		}
 		if (GremlinTemplate.DataName == 'SparkBit_BM')
 		{
-			GremlinTemplate.HealingBonus = 2;
+			GremlinTemplate.HealingBonus = 4;
 		}
 	}
 	
@@ -2940,11 +3000,19 @@ function ReconfigGear(X2ItemTemplate Template, int Difficulty)
 					break;
 
 				case 'SparkArmor':
-				case 'PlatedSparkArmor':
-				case 'PoweredSparkArmor':
-					ArmorTemplate.Abilities.AddItem('Carapace_Plating_Ability');
+					ArmorTemplate.Abilities.AddItem('SPARK_Kevlar_Plating_Ability');
 					break;
-				
+				case 'PlatedSparkArmor':
+					ArmorTemplate.Abilities.AddItem('SPARK_Plated_Plating_Ability');
+					ArmorTemplate.Abilities.AddItem('SPARK_Plated_Armor_Def');
+					ArmorTemplate.SetUIStatMarkup(class'XLocalizedData'.default.DefenseLabel, eStat_Defense, class'X2Ability_LW_GearAbilities'.default.SPARK_PLATED_ARMOR_DEF);
+					break;
+				case 'PoweredSparkArmor':
+					ArmorTemplate.Abilities.AddItem('SPARK_Powered_Plating_Ability');
+					ArmorTemplate.Abilities.AddItem('SPARK_Powered_Armor_Def');
+					ArmorTemplate.SetUIStatMarkup(class'XLocalizedData'.default.DefenseLabel, eStat_Defense, class'X2Ability_LW_GearAbilities'.default.SPARK_POWERED_ARMOR_DEF);
+					break;
+
 				default:
 					// Assume any other armors we don't know about should get the extra
 					// utility slot. (Issue #89)
@@ -3149,6 +3217,18 @@ function ReconfigGear(X2ItemTemplate Template, int Difficulty)
 						Resources.Quantity = ItemTable[i].SpecialItemCost;
 						EquipmentTemplate.Cost.ArtifactCosts.AddItem(Resources);
 					}
+					if (ItemTable[i].SpecialItem2TemplateName != '' && ItemTable[i].SpecialItem2Cost > 0)
+					{
+						Resources.ItemTemplateName = ItemTable[i].SpecialItem2TemplateName;
+						Resources.Quantity = ItemTable[i].SpecialItem2Cost;
+						EquipmentTemplate.Cost.ArtifactCosts.AddItem(Resources);
+					}
+					if (ItemTable[i].SpecialItem3TemplateName != '' && ItemTable[i].SpecialItem3Cost > 0)
+					{
+						Resources.ItemTemplateName = ItemTable[i].SpecialItem3TemplateName;
+						Resources.Quantity = ItemTable[i].SpecialItem3Cost;
+						EquipmentTemplate.Cost.ArtifactCosts.AddItem(Resources);
+					}
 					if (EquipmentTemplate.InventorySlot == eInvSlot_CombatSim)
 					{
 						EquipmentTemplate.Requirements.RequiredFacilities.AddItem('OfficerTrainingSchool');
@@ -3180,6 +3260,22 @@ function ReconfigGear(X2ItemTemplate Template, int Difficulty)
 						Template.AlternateRequirements.AddItem(AltReq);
 						break;
 
+					default:
+						break;
+				}
+
+				// Bit abilities:
+
+				switch (EquipmentTemplate.DataName)
+				{
+					case 'SparkBit_MG':
+						EquipmentTemplate.Abilities.AddItem('Plated_BIT_Bonus_Dodge');
+						EquipmentTemplate.SetUIStatMarkup(class'XLocalizedData'.default.DodgeLabel, eStat_Dodge, class'X2Ability_LW_GearAbilities'.default.PLATED_BIT_DODGE_BONUS);
+						break;
+					case 'SparkBit_BM':
+						EquipmentTemplate.Abilities.AddItem('Powered_BIT_Bonus_Dodge');
+						EquipmentTemplate.SetUIStatMarkup(class'XLocalizedData'.default.DodgeLabel, eStat_Dodge, class'X2Ability_LW_GearAbilities'.default.POWERED_BIT_DODGE_BONUS);
+						break;
 					default:
 						break;
 				}
@@ -3573,6 +3669,46 @@ function RewireTechTree(X2StrategyElementTemplate Template, int Difficulty)
 							}
 						}
 					}
+					if (TechTable[i].ReqItemTemplateName3 != '' && TechTable[i].ReqItemCost3 > 0)
+					{
+						if (TechTable[i].ReqItemTemplateName3 == 'Instant')
+						{
+							Resources.ItemTemplateName = TechTable[i].ReqItemTemplateName1;
+							Resources.Quantity = TechTable[i].ReqItemCost1 * TechTable[i].ReqItemCost3;
+							TechTemplate.InstantRequirements.RequiredItemQuantities.AddItem(Resources);
+							TechTemplate.bCheckForceInstant = true;
+						}
+						else
+						{
+							Resources.ItemTemplateName = TechTable[i].ReqItemTemplateName3;
+							Resources.Quantity = TechTable[i].ReqItemCost3;
+							TechTemplate.Cost.ArtifactCosts.AddItem(Resources);
+							if (!TechTemplate.bProvingGround)
+							{
+								TechTemplate.Requirements.RequiredItems.AddItem(TechTable[i].ReqItemTemplateName3);
+							}
+						}
+					}
+					if (TechTable[i].ReqItemTemplateName4 != '' && TechTable[i].ReqItemCost4 > 0)
+					{
+						if (TechTable[i].ReqItemTemplateName4 == 'Instant')
+						{
+							Resources.ItemTemplateName = TechTable[i].ReqItemTemplateName1;
+							Resources.Quantity = TechTable[i].ReqItemCost1 * TechTable[i].ReqItemCost4;
+							TechTemplate.InstantRequirements.RequiredItemQuantities.AddItem(Resources);
+							TechTemplate.bCheckForceInstant = true;
+						}
+						else
+						{
+							Resources.ItemTemplateName = TechTable[i].ReqItemTemplateName4;
+							Resources.Quantity = TechTable[i].ReqItemCost4;
+							TechTemplate.Cost.ArtifactCosts.AddItem(Resources);
+							if (!TechTemplate.bProvingGround)
+							{
+								TechTemplate.Requirements.RequiredItems.AddItem(TechTable[i].ReqItemTemplateName4);
+							}
+						}
+					}
 					TechTemplate.Requirements.RequiredTechs.Length = 0;
 					if (TechTable[i].PrereqTech1 != '')
 						TechTemplate.Requirements.RequiredTechs.AddItem(TechTable[i].PrereqTech1);
@@ -3704,6 +3840,7 @@ function ReconfigFacilities(X2StrategyElementTemplate Template, int Difficulty)
 			FacilityTemplate.SoldierUnlockTemplates.AddItem('StayWithMeUnlock');
 			FacilityTemplate.SoldierUnlockTemplates.AddItem('Infiltration1Unlock');
 			FacilityTemplate.SoldierUnlockTemplates.AddItem('Infiltration2Unlock');
+			//FacilityTemplate.SoldierUnlockTemplates.AddItem('TrialByFireUpgradeUnlock');
 		}
 		if (FacilityTemplate.DataName == 'Laboratory')
 		{
@@ -3835,7 +3972,7 @@ function bool ExpectNarrativeCount(X2MissionNarrativeTemplate Template, int Cnt)
 	if(Template.NarrativeMoments.Length != Cnt)
 	{
 		`redscreen("LWTemplateMods: Found too many narrative moments for " $ Template.DataName);
-		`log("LWTemplateMods: Found too many narrative moments for " $ Template.DataName);
+		`LWTrace("LWTemplateMods: Found too many narrative moments for " $ Template.DataName);
 		return false;
 	}
 

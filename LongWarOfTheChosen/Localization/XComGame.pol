@@ -149,11 +149,11 @@ LocPromotionPopupText="<Bullet/> Miotacz ognia to broń o krótkim zasięgu, kt�
 
 [LWRocketLauncher X2AbilityTemplate]
 LocFriendlyName="Wyrzutnia rakiet"
-LocHelpText="Wystrzelenie rakiety na wskazany obszar. <Ability:ROCKETSCATTER/>"
+LocHelpText="Wystrzelenie rakiety na wskazany obszar.<Ability:ROCKETSCATTER/>"
 
 [LWBlasterLauncher X2AbilityTemplate]
 LocFriendlyName="Bomba blasterowa"
-LocHelpText="Wystrzelenie kierowanej bomby blasterowej we wskazane miejsce. <Ability:ROCKETSCATTER/>"
+LocHelpText="Wystrzelenie kierowanej bomby blasterowej we wskazane miejsce.<Ability:ROCKETSCATTER/>"
 
 [NapalmX X2AbilityTemplate]
 LocFriendlyName="Napalm-X"
@@ -3174,6 +3174,10 @@ BonusText="SZYBKOŚĆ LECZENIA +%AVENGERBONUS%"
 FilledText="Specjalistyczna opieka medyczna, której udziela %UNITNAME, przyspiesza czas gojenia się ran żołnierzy."
 LockedText="ZABLOKOWANE: KUP ULEPSZENIE"
 
+[CovertActionIntenseTrainingStaffSlot X2StaffSlotTemplate]
+EmptyText="ŻOŁNIERZ"
+BonusText="NA TAJNEJ OPERACJI"
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Techs ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 [Tech_AlienFacilityLead X2TechTemplate]
@@ -5436,6 +5440,10 @@ LocLongDescription="Kiedy otrzymasz trafienie krytyczne, pobliscy humanoidalni s
 [LocationScout X2SitRepTemplate]
 Description="Ruch oporu umieścił czujniki ruchu niskiego zasięgu, które łączą się z komunikacją twojej drużyny. Twoi żołnierze będą w stanie wykryć jednostki wroga, które znajdują się poza zasięgiem wzroku."
 
+[SlightlyLargeMap X2SitRepTemplate]
+FriendlyName="Wielka mapa"
+Description="Obszar działań jest większy niż zwykle, więc dotarcie do celu zajmie Ci prawdopodobnie więcej czasu."
+
 [LargeMap X2SitRepTemplate]
 FriendlyName="Wielka mapa"
 Description="Obszar działań jest większy niż zwykle, więc dotarcie do celu zajmie Ci prawdopodobnie więcej czasu."
@@ -5738,7 +5746,7 @@ strCharacterName="Zagubiony Brutal"
 [TheLostBruteHP16_LW X2CharacterTemplate]
 strCharacterName="Zagubiony Brutal"
 
-[LWTheLostBruteHP18 X2CharacterTemplate]
+[TheLostBruteHP18_LW X2CharacterTemplate]
 strCharacterName="Zagubiony Brutal"
 
 [TheLostBruteHP21_LW X2CharacterTemplate]
@@ -5830,9 +5838,9 @@ LocPromotionPopupText="<Bullet/> Jeśli podczas swojej tury zabijesz przynajmnie
 [Dedication_LW X2AbilityTemplate]
 LocFriendlyName="Dedykacja"
 LocFlyOverText="Dedykacja"
-LocLongDescription="Darmowa akcja. Zyskaj <Ability:DEDICATION_MOBILITY/> mobilność i ignoruj ogień reakcyjny do końca tury. Wymaga <Ability:SelfCooldown_LW/> tur(y) odnowienia."
-LocHelpText="Darmowa akcja. Zyskaj <Ability:DEDICATION_MOBILITY/> mobilność i ignoruj ogień reakcyjny do końca tury. Wymaga <Ability:SelfCooldown_LW/> tur(y) odnowienia."
-LocPromotionPopupText="<Bullet/> Zyskaj <Ability:DEDICATION_MOBILITY/> mobilność i ignoruj ogień reakcyjny do końca tury.<br/><Bullet/> Darmowa akcja.<br/><Bullet/> Wymaga <Ability:SelfCooldown_LW/> tur(y) odnowienia."
+LocLongDescription="Darmowa akcja. Zyskaj <Ability:DEDICATIONLW_MOBILITY/> mobilność i ignoruj ogień reakcyjny do końca tury. Wymaga <Ability:SelfCooldown_LW/> tur(y) odnowienia."
+LocHelpText="Darmowa akcja. Zyskaj <Ability:DEDICATIONLW_MOBILITY/> mobilność i ignoruj ogień reakcyjny do końca tury. Wymaga <Ability:SelfCooldown_LW/> tur(y) odnowienia."
+LocPromotionPopupText="<Bullet/> Zyskaj <Ability:DEDICATIONLW_MOBILITY/> mobilność i ignoruj ogień reakcyjny do końca tury.<br/><Bullet/> Darmowa akcja.<br/><Bullet/> Wymaga <Ability:SelfCooldown_LW/> tur(y) odnowienia."
 
 [Corpsman_LW X2AbilityTemplate]
 LocFriendlyName="Sanitariusz"
@@ -6042,6 +6050,12 @@ LocLongDescription = "Zabicie wroga zapewnia kumulowaną premię hakowania +<Abi
 LocPromotionPopupText = "<Bullet/> Zabicie wroga zapewnia kumulowaną premię hakowania +<Ability:DISASSEMBLY_HACK/>, która trwa 3 tury.<br/>"
 
 [LightningSlash_LW X2AbilityTemplate]
+LocFriendlyName="Błyskawiczny cios"
+LocLongDescription="Zaatakuj dowolnego wroga w niebieskim zasięgu ruchu za pomocą <Ability:BOUND_WEAPON_NAME/>. Atak nie kończy tury."
+LocHelpText="Zaatakuj dowolnego wroga w niebieskim zasięgu ruchu za pomocą <Ability:BOUND_WEAPON_NAME/>. Atak nie kończy tury."
+LocPromotionPopupText="<Bullet/> Zaatakuj dowolnego wroga w niebieskim zasięgu ruchu za pomocą <Ability:BOUND_WEAPON_NAME/>.<br/><Bullet/> Atak nie kończy tury.<br/><Bullet/> Wymaga <Ability:LIGHTNINGSLASH_COOLDOWN/> tur(y) odnowienia.<br/>"
+
+[LightningSlashLastAction_LW X2AbilityTemplate]
 LocFriendlyName="Błyskawiczny cios"
 LocLongDescription="Zaatakuj dowolnego wroga w niebieskim zasięgu ruchu za pomocą <Ability:BOUND_WEAPON_NAME/>. Atak nie kończy tury."
 LocHelpText="Zaatakuj dowolnego wroga w niebieskim zasięgu ruchu za pomocą <Ability:BOUND_WEAPON_NAME/>. Atak nie kończy tury."

@@ -188,6 +188,7 @@ var name ProtectRegionMidName;
 var name ProtectRegionName;
 var name CounterinsurgencyName;
 var name ReinforceName;
+var name ChosenReinforceName;
 var name COINResearchName;
 var name COINOpsName;
 var name BuildResearchFacilityName;
@@ -223,6 +224,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	AlienActivities.AddItem(CreateProtectRegionTemplate());
 	AlienActivities.AddItem(CreateCounterinsurgencyTemplate());
 	AlienActivities.AddItem(CreateReinforceTemplate());
+	AlienActivities.AddItem(CreateChosenReinforceTemplate());
 	AlienActivities.AddItem(CreateCOINResearchTemplate());
 	AlienActivities.AddItem(CreateCOINOpsTemplate());
 	AlienActivities.AddItem(CreateBuildResearchFacilityTemplate());
@@ -983,6 +985,104 @@ static function OnReinforceActivityComplete(bool bAlienSuccess, XComGameState_LW
 		OrigRegionalAI.LocalAlertLevel = Max(OrigRegionalAI.LocalAlertLevel - 1, 1);
 		OrigRegionalAI.AddVigilance (NewGameState, default.REINFORCEMENTS_STOPPED_ORIGIN_VIGILANCE_INCREASE);
 		AddVigilanceNearby (NewGameState, DestRegionState, default.REINFORCEMENTS_STOPPED_ADJACENT_VIGILANCE_BASE, default.REINFORCEMENTS_STOPPED_ADJACENT_VIGILANCE_RAND);
+	}
+}
+
+//#############################################################
+// --------------- Chosen Reinforcements activity -------------
+//#############################################################
+
+static function X2DataTemplate CreateChosenReinforceTemplate()
+{
+	local X2LWAlienActivityTemplate Template;
+	//local X2LWActivityCondition_Month MonthRestriction;
+	local X2LWActivityDetectionCalc DetectionCalc;
+	//local X2LWActivityCondition_AlertVigilance AlertVigilance;
+
+	`CREATE_X2TEMPLATE(class'X2LWAlienActivityTemplate', Template, default.ChosenReinforceName);
+	Template.iPriority = 100; // 50 is default, lower priority gets created earlier
+
+	//these define the requirements for creating each activity
+	Template.ActivityCreation = new class'X2LWActivityCreation_ChosenAction';
+	Template.ActivityCreation.Conditions.AddItem(default.ContactedAlienRegion);
+
+	DetectionCalc = new class'X2LWActivityDetectionCalc';
+	DetectionCalc.SetAlwaysDetected(true);
+	Template.DetectionCalc = DetectionCalc;
+
+	// required delegates
+	Template.OnMissionSuccessFn = NoVigEndActivityOnMissionSuccess;
+	Template.OnMissionFailureFn = TypicalAdvanceActivityOnMissionFailure;
+
+	//optional delegates
+	Template.OnActivityStartedFn = none;
+
+	Template.WasMissionSuccessfulFn = none;  // always one objective
+	Template.GetMissionForceLevelFn = GetTypicalMissionForceLevel; // use regional ForceLevel
+	Template.GetMissionAlertLevelFn = GetChosenReinforceAlertLevel; // custom alert level hardcoded
+
+	Template.GetTimeUpdateFn = none;
+	Template.OnMissionExpireFn = none; // just remove the mission, handle in failure
+	Template.GetMissionRewardsFn = GetReinforceRewards;
+	Template.OnActivityUpdateFn = none;
+
+	Template.CanBeCompletedFn = none;  // can always be completed
+	Template.OnActivityCompletedFn = OnChosenReinforcementsComplete; // Add str to the region
+
+	return Template;
+}
+
+static function int GetChosenReinforceAlertLevel(XComGameState_LWAlienActivity ActivityState, XComGameState_MissionSite MissionSite, XComGameState NewGameState)
+{
+	// hard code the Alert level for this.  Alert 7 with chosen means str 4 mission.
+	return 7;
+}
+
+
+static function OnChosenReinforcementsComplete(bool bAlienSuccess, XComGameState_LWAlienActivity ActivityState, XComGameState NewGameState)
+{
+	local XComGameStateHistory History;
+	local XComGameState_WorldRegion RegionState, AdjacentRegion;
+	local XComGameState_WorldRegion_LWStrategyAI RegionalAI;
+	local XComGameState_WorldRegion_LWStrategyAI AdjacentRegionalAI;
+	local StateObjectReference                   LinkedRegionRef;
+	local int k, RandIndex;
+	local array<XComGameState_WorldRegion> RegionLinks;
+
+	History = `XCOMHISTORY;
+
+	RegionState = XComGameState_WorldRegion(NewGameState.GetGameStateForObjectID(ActivityState.PrimaryRegion.ObjectID));
+	if(RegionState == none)
+		RegionState = XComGameState_WorldRegion(History.GetGameStateForObjectID(ActivityState.PrimaryRegion.ObjectID));
+	RegionalAI = class'XComGameState_WorldRegion_LWStrategyAI'.static.GetRegionalAI(RegionState, NewGameState, true);
+	if(bAlienSuccess)
+	{
+		`LWTRACE("EmergencyOffworldReinforcementsComplete : Alien Success, adding AlertLevel to primary and some surrounding regions");
+		// reinforcements have arrived
+		RegionalAI.LocalAlertLevel += default.EMERGENCY_REINFORCEMENT_PRIMARY_REGION_ALERT_BONUS;
+
+		foreach RegionState.LinkedRegions(LinkedRegionRef)
+		{
+			AdjacentRegion = XComGameState_WorldRegion(NewGameState.GetGameStateForObjectID(LinkedRegionRef.ObjectID));
+			if (AdjacentRegion == none)
+				AdjacentRegion = XComGameState_WorldRegion(`XCOMHISTORY.GetGameStateForObjectID(LinkedRegionRef.ObjectID));
+			if (AdjacentRegion != none && !RegionIsLiberated(AdjacentRegion, NewGameState))
+			{
+				RegionLinks.AddItem(AdjacentRegion);
+			}
+		}
+
+		for (k = 0; k < default.ADJACENT_REGIONS_REINFORCED_BY_REGULAR_ALERT_UFO; k++)
+		{
+			RandIndex = `SYNC_RAND_STATIC(RegionLinks.Length);
+			AdjacentRegion = RegionLinks[RandIndex];
+			if (AdjacentRegion != none)
+			{
+				RegionLinks.Remove(RandIndex, 1);
+				AdjacentRegionalAI = class'XComGameState_WorldRegion_LWStrategyAI'.static.GetRegionalAI(AdjacentRegion, NewGameState, true);
+				AdjacentRegionalAI.LocalAlertLevel += default.EMERGENCY_REINFORCEMENT_ADJACENT_REGION_ALERT_BONUS;
+			}
+		}
 	}
 }
 
@@ -2688,6 +2788,7 @@ static function X2DataTemplate CreateInvasionTemplate()
 	local X2LWActivityCooldown Cooldown;
 	local X2LWActivityCondition_LiberatedDays FreedomDuration;
 	local X2LWActivityCondition_RNG_Region AlienSearchCondition;
+	local X2LWActivityCondition_MinRebels RebelCondition1;
 
 	`CREATE_X2TEMPLATE(class'X2LWAlienActivityTemplate', Template, default.InvasionName);
 
@@ -2698,6 +2799,11 @@ static function X2DataTemplate CreateInvasionTemplate()
 	//these define the requirements for creating each activity
 	Template.ActivityCreation = new class'X2LWActivityCreation_Invasion';
 	Template.ActivityCreation.Conditions.AddItem(default.SingleActivityInRegion);
+
+	// This makes sure there are enough warm bodies for the mission to be meaningful
+	RebelCondition1 = new class 'X2LWActivityCondition_MinRebels';
+	RebelCondition1.MinRebels = default.ATTEMPT_COUNTERINSURGENCY_MIN_REBELS;
+	Template.ActivityCreation.Conditions.AddItem(RebelCondition1);
 
 	RegionStatus = new class'X2LWActivityCondition_RegionStatus';
 	RegionStatus.bAllowInLiberated = true;
@@ -3211,7 +3317,7 @@ static function X2DataTemplate CreateCovertOpsTroopManeuversTemplate()
 	AlertVigilance.MinAlert = 9999; // never created normally, only via Covert Op
 	Template.ActivityCreation.Conditions.AddItem(AlertVigilance);
 
-	Template.OnMissionSuccessFn = TypicalEndActivityOnMissionSuccess;
+	Template.OnMissionSuccessFn = NoVigEndActivityOnMissionSuccess;
 	Template.OnMissionFailureFn = TypicalAdvanceActivityOnMissionFailure;
 
 	Template.OnActivityStartedFn = none;
@@ -3951,8 +4057,9 @@ static function X2DataTemplate CreateBigSupplyExtractionTemplate()
     // Add an arbitrary mission to the mission list. This won't really be used, it'll be overridden
     // by the cheat command to force a particular mission kind.
     MissionLayer.MissionFamilies.AddItem('BigSupplyExtraction_LW');
-	MissionLayer.Duration_Hours = 24*6;
+	MissionLayer.Duration_Hours = 24*6+1;
 	MissionLayer.DurationRand_Hours = 24;
+	MissionLayer.BaseInfiltrationModifier_Hours=-12;
     Template.MissionTree.AddItem(MissionLayer);
 
  	DetectionCalc = new class'X2LWActivityDetectionCalc';
@@ -3966,7 +4073,7 @@ static function X2DataTemplate CreateBigSupplyExtractionTemplate()
 	AlertVigilance.MinAlert = 9999; // never created normally, only via Covert Op
 	Template.ActivityCreation.Conditions.AddItem(AlertVigilance);
 
-	Template.OnMissionSuccessFn = TypicalEndActivityOnMissionSuccess;
+	Template.OnMissionSuccessFn = NoVigEndActivityOnMissionSuccess;
 	Template.OnMissionFailureFn = TypicalAdvanceActivityOnMissionFailure;
 
 	Template.OnActivityStartedFn = none;
@@ -4233,6 +4340,44 @@ static function TypicalEndActivityOnMissionSuccess(XComGameState_LWAlienActivity
 
 }
 
+static function NoVigEndActivityOnMissionSuccess(XComGameState_LWAlienActivity ActivityState, XComGameState_MissionSite MissionState, XComGameState NewGameState)
+{
+	local X2LWAlienActivityTemplate ActivityTemplate;
+	local XComGameState_WorldRegion RegionState;
+	local array<int> ExcludeIndices;
+
+	if(ActivityState == none)
+		`REDSCREEN("AlienActivities : TypicalEndActivityOnMissionSuccess -- no ActivityState");
+
+	ActivityTemplate = ActivityState.GetMyTemplate();
+	NewGameState.AddStateObject(ActivityState);
+
+	RegionState = XComGameState_WorldRegion(NewGameState.GetGameStateForObjectID(ActivityState.PrimaryRegion.ObjectID));
+	if(RegionState == none)
+		RegionState = XComGameState_WorldRegion(`XCOMHISTORY.GetGameStateForObjectID(ActivityState.PrimaryRegion.ObjectID));
+
+	if (MissionState != none)
+	{
+		ExcludeIndices = GetRewardExcludeIndices(ActivityState, MissionState, NewGameState);
+
+		GiveRewards(NewGameState, MissionState, ExcludeIndices);
+		RecordResistanceActivityNoVig(true, ActivityState, MissionState, NewGameState);
+
+		IncreaseChosenKnowledge(RegionState, NewGameState);
+
+		MissionState.RemoveEntity(NewGameState);
+	}
+
+	if(ActivityTemplate.OnActivityCompletedFn != none)
+		ActivityTemplate.OnActivityCompletedFn(false /* not alien success*/, ActivityState, NewGameState);
+
+	NewGameState.RemoveStateObject(ActivityState.ObjectID);
+
+	//record success
+
+}
+
+
 static function TypicalEndActivityOnMissionFailure(XComGameState_LWAlienActivity ActivityState, XComGameState_MissionSite MissionState, XComGameState NewGameState)
 {
 	local X2LWAlienActivityTemplate ActivityTemplate;
@@ -4447,6 +4592,7 @@ static function RecordResistanceActivity(bool Success, XComGameState_LWAlienActi
 		case "Invasion_LW":
 			ActivityTemplateName='ResAct_RegionsLiberated';
 			break;
+		case "ChosenSupplyLineRaid_LW":
 		case "SupplyLineRaid_LW":
 			ActivityTemplateName='ResAct_SupplyRaidsCompleted';
 			break;
@@ -4514,11 +4660,167 @@ static function RecordResistanceActivity(bool Success, XComGameState_LWAlienActi
 		case "Invasion_LW":
 			ActivityTemplateName='ResAct_RegionsLost';
 			break;
+		case "ChosenSupplyLineRaid_LW":
 		case "SupplyLineRaid_LW":
 			if (!ActivityState.bFailedFromMissionExpiration)
 			{
 				ActivityTemplateName='ResAct_SupplyRaidsFailed';
 			}
+			break;
+		case "Rendezvous_LW":
+			if (!ActivityState.bFailedFromMissionExpiration)
+			{
+				ActivityTemplateName='ResAct_FacelessUncovered';
+			}
+			break;
+		case "RecruitRaid_LW":
+		case "IntelRaid_LW":
+		case "SupplyConvoy_LW":
+			ActivityTemplateName='ResAct_RaidsLost';
+			break;
+		default:
+			break;
+		}
+	}
+
+	/// DID NOT USE: ResAct_CouncilMissionsCompleted
+
+	//only record for missions that were ever visible
+	if (MissionState.Available)
+	{
+		class'XComGameState_HeadquartersResistance'.static.RecordResistanceActivity(NewGameState, ActivityTemplateName);
+		if (DoomToRemove > 0)
+		{
+			class'XComGameState_HeadquartersResistance'.static.RecordResistanceActivity(NewGameState, 'ResAct_AvatarProgressReduced', DoomToRemove);
+		}
+	}
+}
+
+static function RecordResistanceActivityNoVig(bool Success, XComGameState_LWAlienActivity ActivityState, XComGameState_MissionSite MissionState, XComGameState NewGameState)
+{
+	local XComGameStateHistory History;
+	local XComGameState_WorldRegion RegionState;
+	local XComGameState_WorldRegion_LWStrategyAI RegionalAI;
+	local name ActivityTemplateName;
+	local int DoomToRemove;
+	local string MissionFamily;
+
+	History = `XCOMHISTORY;
+
+	RegionState = XComGameState_WorldRegion(NewGameState.GetGameStateForObjectID(ActivityState.PrimaryRegion.ObjectID));
+	if(RegionState == none)
+		RegionState = XComGameState_WorldRegion(History.GetGameStateForObjectID(ActivityState.PrimaryRegion.ObjectID));
+	RegionalAI = class'XComGameState_WorldRegion_LWStrategyAI'.static.GetRegionalAI(RegionState, NewGameState, true);
+
+
+	// Golden Path missions are handled by their MissionSource templates, which are still in-use
+
+	MissionFamily = MissionState.GeneratedMission.Mission.MissionFamily;
+	if (Success)
+	{
+		switch (MissionFamily) {
+		case "Hack_LW":
+		case "Recover_LW":
+		case "Rescue_LW":
+		case "Extract_LW":
+		case "DestroyObject_LW":
+		case "Jailbreak_LW":
+		case "TroopManeuvers_LW":
+		case "CovertOpsTroopManeuvers_LW":
+		case "ProtectDevice_LW":
+		case "SabotageCC":
+		case "SabotageCC_LW":
+		case "AssaultNetworkTower_LW":
+		case "SmashnGrab_LW":
+		case "SupplyExtraction_LW":
+		case "BigSupplyExtraction_LW":
+			ActivityTemplateName='ResAct_GuerrillaOpsCompleted';
+			break;
+		case "SecureUFO_LW":
+			ActivityTemplateName='ResAct_LandedUFOsCompleted';
+			break;
+		case "Terror_LW":
+        case "Defend_LW":
+			ActivityTemplateName='ResAct_RetaliationsStopped';
+			break;
+		case "Invasion_LW":
+			ActivityTemplateName='ResAct_RegionsLiberated';
+			break;
+		case "ChosenSupplyLineRaid_LW":
+		case "SupplyLineRaid_LW":
+			ActivityTemplateName='ResAct_SupplyRaidsCompleted';
+			break;
+		case "Sabotage_LW":
+			ActivityTemplateName='ResAct_AlienFacilitiesDestroyed';
+			DoomToRemove = MissionState.Doom;
+			break;
+        case "Rendezvous_LW":
+			ActivityTemplateName='ResAct_FacelessUncovered';
+            break;
+		case "AssaultAlienBase_LW":
+			ActivityTemplateName='ResAct_RegionsLiberated';
+			if (RegionalAI.NumTimesLiberated <= 0)
+			{
+				`LWTRACE ("Removing one doom for capturing a region!");
+				DoomToRemove = default.ALIEN_BASE_DOOM_REMOVAL;
+			}
+			break;
+		case "RecruitRaid_LW":
+		case "IntelRaid_LW":
+		case "SupplyConvoy_LW":
+			ActivityTemplateName='ResAct_RaidsDefeated';
+			break;
+		default:
+			ActivityTemplateName='ResAct_GuerrillaOpsCompleted';
+			break;
+		}
+	}
+	else
+	{
+		switch (MissionFamily) {
+		case "Hack_LW":
+		case "Recover_LW":
+		case "Rescue_LW":
+		case "Extract_LW":
+		case "DestroyObject_LW":
+		case "Jailbreak_LW":
+		case "TroopManeuvers_LW":
+		case "CovertOpsTroopManeuvers_LW":
+		case "ProtectDevice_LW":
+		case "SabotageCC":
+		case "SabotageCC_LW":
+		case "Rendezvous_LW":
+		case "AssaultNetworkTower_LW":
+		case "Sabotage_LW":
+		case "SmashnGrab_LW":
+		case "SupplyExtraction_LW":
+		case "BigSupplyExtraction_LW":
+		case "AssaultAlienBase_LW":
+			if (!ActivityState.bFailedFromMissionExpiration)
+			{
+				ActivityTemplateName='ResAct_GuerrillaOpsFailed';
+			}
+			break;
+		case "SecureUFO_LW":
+			if (!ActivityState.bFailedFromMissionExpiration)
+			{
+				ActivityTemplateName='ResAct_LandedUFOsFailed';
+			}
+			break;
+		case "Terror_LW":
+        case "Defend_LW":
+			ActivityTemplateName='ResAct_RetaliationsFailed';
+			break;
+		case "Invasion_LW":
+			ActivityTemplateName='ResAct_RegionsLost';
+			break;
+		case "ChosenSupplyLineRaid_LW":
+		case "SupplyLineRaid_LW":
+			if (!ActivityState.bFailedFromMissionExpiration)
+			{
+				ActivityTemplateName='ResAct_SupplyRaidsFailed';
+			}
+			break;
 		case "Rendezvous_LW":
 			if (!ActivityState.bFailedFromMissionExpiration)
 			{
@@ -4850,6 +5152,7 @@ defaultProperties
     ProtectRegionName="ProtectRegion";
     CounterinsurgencyName="Counterinsurgency";
     ReinforceName="ReinforceActivity";
+	ChosenReinforceName="ChosenReinforceActivity";
     COINResearchName="COINResearch";
     COINOpsName="COINOps";
     BuildResearchFacilityName="BuildResearchFacility";

@@ -68,6 +68,7 @@ static function CHEventListenerTemplate CreateMiscellaneousListeners()
 	Template.AddCHEvent('CleanupTacticalMission', OnCleanupTacticalMission, ELD_Immediate, GetListenerPriority());
 	Template.AddCHEvent('OverrideBodyRecovery', OnOverrideBodyAndLootRecovery, ELD_Immediate);
 	Template.AddCHEvent('OverrideLootRecovery', OnOverrideBodyAndLootRecovery, ELD_Immediate);
+	Template.AddCHEvent(class'X2Ability_ChosenWarlock'.default.SpawnSpectralArmyRemovedTriggerName, OnTestEventActivated, ELD_Immediate);
 	Template.AddCHEvent('AbilityActivated', OnAbilityActivated, ELD_OnStateSubmitted, GetListenerPriority());
 	Template.AddCHEvent('UnitChangedTeam', ClearUnitStateValues, ELD_Immediate, GetListenerPriority());
 	Template.AddCHEvent('PlayerTurnEnded', RollForPerTurnWillLoss, ELD_OnStateSubmitted, GetListenerPriority());
@@ -536,6 +537,16 @@ static function int ProcessReflexActionsForUnit(
 	float Chance,
 	int NumSuccessfulReflexActions)
 {
+	local UnitValue SpawnedUnitValue;
+
+	// If the unit spawned this turn, no reflex moves;
+	Unit.GetUnitValue('SpawnedThisTurnUnitValue', SpawnedUnitValue);
+	if(SpawnedUnitValue.fValue > 0)
+	{
+		return 0;
+	}
+	
+
 	if (class'Utilities_LW'.default.REFLEX_ACTION_CHANCE_REDUCTION > 0 && NumSuccessfulReflexActions > 0)
 	{
 		`LWTrace(GetFuncName() $ ": Reducing reflex chance due to " $ NumSuccessfulReflexActions $ " successes");
@@ -697,7 +708,7 @@ static function EventListenerReturn OnCleanupTacticalMission(Object EventData, O
 					X2Effect_GreaterPadding(EffectState.GetX2Effect()).ApplyGreaterPadding(EffectState, Unit, NewGameState);
 				}
 					
-				else if (EffectState.GetX2Effect().EffectName == class'X2Effect_MindControl'.default.EffectName && AwardWrecks)
+				else if (EffectState.GetX2Effect().EffectName == 'FullOverride' && AwardWrecks)
 				{
 					Unit.RollForAutoLoot(NewGameState);
 
@@ -1007,6 +1018,18 @@ static protected function EventListenerReturn ClearUnitStateValues(
 
 	UnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(UnitState.ObjectID));
 	UnitState.CleanupUnitValues(eCleanup_BeginTurn);
+
+	return ELR_NoInterrupt;
+}
+
+static protected function EventListenerReturn OnTestEventActivated(
+	Object EventData,
+	Object EventSource,
+	XComGameState NewGameState,
+	Name InEventID,
+	Object CallbackData)
+{
+	`LWTrace("SpawnSpectralArmyRemovedTrigger activated");
 
 	return ELR_NoInterrupt;
 }

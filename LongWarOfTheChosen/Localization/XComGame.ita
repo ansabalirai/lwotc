@@ -119,7 +119,7 @@ LocPromotionPopupText="<Bullet/> Il lanciafiamme è un'arma a breve gittata che 
 
 [LWRocketLauncher X2AbilityTemplate]
 LocFriendlyName="Lanciarazzi"
-LocHelpText="Spara un razzo nell'area bersaglio. <Ability:ROCKETSCATTER/>"
+LocHelpText="Spara un razzo nell'area bersaglio.<Ability:ROCKETSCATTER/>"
 
 [LWBlasterLauncher X2AbilityTemplate]
 LocFriendlyName="Bomba esplosiva"
@@ -2819,6 +2819,10 @@ BonusEmptyText="Aumenta il tasso di guarigione dei soldati."
 BonusText="TASSO DI GUARIGIONE +%AVENGERBONUS%"
 FilledText="L'attrezzatura medica avanzata di %UNITNAME sta aumentando il tasso di guarigione con il quale i soldati si riprendono dalle ferite."
 LockedText="BLOCCATO: ACQUISTA POTENZIAMENTO"
+
+[CovertActionIntenseTrainingStaffSlot X2StaffSlotTemplate]
+EmptyText="SOLDATO"
+BonusText="IN MISSIONE SEGRETA"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Techs ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -556,6 +556,7 @@ static function X2AbilityTemplate TemplarShield()
 	local X2Effect_TemplarShieldAnimations		AnimSetEffect;
 	local X2Effect_TemplarShield				ShieldedEffect;
 	local X2Effect_TemplarShieldCritDefense		AntiFlankEffect;
+	//local array<name> 							SkipExclusions;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TemplarShield');
 
@@ -567,7 +568,8 @@ static function X2AbilityTemplate TemplarShield()
 
 	// Shooter Conditions
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
- 	Template.AddShooterEffectExclusions();
+	//SkipExclusions.AddItem(class'X2AbilityTemplateManager'.default.DisorientedName); //okay when disoriented
+	Template.AddShooterEffectExclusions();
 
 	// Triggering and Targeting
 	Template.AbilityToHitCalc = default.DeadEye;
@@ -869,6 +871,8 @@ static function EventListenerReturn VoltFocusKillTracker_Listener(Object EventDa
 	Template.AbilityToHitCalc = default.DeadEye;
 	Template.AbilityTargetStyle = default.SelfTarget;
 
+	Template.bUniqueSource = true;
+
 	EventListener = new class'X2AbilityTrigger_EventListener';
 	EventListener.ListenerData.Deferral = ELD_OnStateSubmitted;
 	EventListener.ListenerData.EventFn = class'XComGameState_Ability'.static.AbilityTriggerEventListener_Self;
@@ -911,6 +915,8 @@ static function X2AbilityTemplate DoubleRendFocus()
 	
 	Template.AbilityToHitCalc = default.DeadEye;
 	Template.AbilityTargetStyle = default.SelfTarget;
+
+	Template.bUniqueSource = true;
 
 	EventListener = new class'X2AbilityTrigger_EventListener';
 	EventListener.ListenerData.Deferral = ELD_OnStateSubmitted;

@@ -41,9 +41,61 @@ static event InstallNewCampaign(XComGameState StartState)
 /// </summary>
 static event OnPostTemplatesCreated()
 {
+	local X2ItemTemplateManager			ItemManager;
+
+	ItemManager = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
+
 	UpdateBaseGameOverwatchShot();
 	UpdateBaseGameThrowGrenade();
+	/*
+		Might not be the right place to be adding this. I recall that lwotc does something unique in place
+		of a lot of OPTC shenanigans.
+	*/
+	PatchItemsForDenseSmoke(ItemManager);
+	PatchItemsForStingGrenades(ItemManager);
 	//UpdateBaseGameAidProtocol();
+}
+
+static function PatchItemsForStingGrenades(X2ItemTemplateManager ItemManager)
+{
+	local X2GrenadeTemplate					Template;
+	local name								ItemName;
+
+	foreach class'LW_PerkPack_Integrated.X2Ability_PerkPackAbilitySet2'.default.FLASHBANGS_FOR_STING_GRENADES(ItemName)
+	{
+		Template = X2GrenadeTemplate(ItemManager.FindItemTemplate(ItemName));
+		if(Template != none)
+		{
+			UpdateForStingGrenades(Template);
+		}
+	}
+}
+
+static function UpdateForStingGrenades(X2GrenadeTemplate Template)
+{
+	Template.ThrownGrenadeEffects.AddItem(class'LW_PerkPack_Integrated.X2Ability_PerkPackAbilitySet2'.static.StingGrenadeEffect());
+	Template.LaunchedGrenadeEffects.AddItem(class'LW_PerkPack_Integrated.X2Ability_PerkPackAbilitySet2'.static.StingGrenadeEffect());
+}
+
+static function PatchItemsForDenseSmoke(X2ItemTemplateManager ItemManager)
+{
+	local X2GrenadeTemplate					Template;
+	local name								ItemName;
+
+	foreach class'LW_PerkPack_Integrated.X2Ability_PerkPackAbilitySet2'.default.SMOKE_GRENADES_FOR_DENSE_SMOKE(ItemName)
+	{
+		Template = X2GrenadeTemplate(ItemManager.FindItemTemplate(ItemName));
+		if(Template != none)
+		{
+			UpdateForDenseSmoke(Template);
+		}
+	}
+}
+
+static function UpdateForDenseSmoke(X2GrenadeTemplate Template)
+{
+	Template.ThrownGrenadeEffects.AddItem(class'LW_PerkPack_Integrated.X2Ability_PerkPackAbilitySet2'.static.DenseSmokeEffect());
+	Template.LaunchedGrenadeEffects.AddItem(class'LW_PerkPack_Integrated.X2Ability_PerkPackAbilitySet2'.static.DenseSmokeEffect());
 }
 
 //Restores VM's ability to modify radius
@@ -227,7 +279,7 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 		case 'LOCKNLOAD_AMMO_TO_RELOAD':
 			OutString = string(class'X2Ability_XMBPerkAbilitySet'.default.LOCKNLOAD_AMMO_TO_RELOAD);
 			return true;
-		case 'DEDICATION_MOBILITY':
+		case 'DEDICATIONLW_MOBILITY':
 			OutString = string(class'X2Ability_XMBPerkAbilitySet'.default.DEDICATION_MOBILITY);
 			return true;
 		case 'DEDICATION_COOLDOWN':
@@ -410,6 +462,9 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 		case 'BRAWLER_DR_PCT':
 			OutString = string(int(class'X2Effect_Brawler'.default.BRAWLER_DR_PCT));
 			return true;
+		case 'BRAWLER_MAX_TILES':
+			OutString = string(class'X2Effect_Brawler'.default.BRAWLER_MAX_TILES);
+			return true;
 		case 'LONEWOLF_AIM_PER_TILE':
 			OutString = string(class'X2Effect_LoneWolf'.default.LONEWOLF_AIM_PER_TILE);
 			return true;
@@ -563,6 +618,15 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 			return true;
 		case 'PSYCHOTIC_RAGE_DMG_BONUS':
 			Outstring = string(class'X2Ability_XMBPerkAbilitySet'.default.PSYCHOTIC_RAGE_DMG_BONUS);
+			return true;
+		case 'ADVANCED_LOGIC_HACK_BONUS':
+			Outstring = string(class'X2Ability_PerkPackAbilitySet2'.default.ADVANCED_LOGIC_HACK_BONUS);
+			return true;
+		case 'SACRIFICE_COOLDOWN':
+			OutString = string(class'X2Ability_SparkAbilitySet'.default.SACRIFICE_COOLDOWN);
+			return true;
+		case 'NEUTRALIZE_COOLDOWN':
+			Outstring = string(class'X2Ability_PerkPackAbilitySet2'.default.NEUTRALIZE_COOLDOWN);
 			return true;
         default:
             return false;

@@ -154,11 +154,11 @@ LocPromotionPopupText="<Bullet/> El lanzallamas es un arma de corto alcance que 
 
 [LWRocketLauncher X2AbilityTemplate]
 LocFriendlyName="Lanzacohetes"
-LocHelpText="Dispara un cohete a una zona objetivo. <Ability:ROCKETSCATTER/>"
+LocHelpText="Dispara un cohete a una zona objetivo.<Ability:ROCKETSCATTER/>"
 
 [LWBlasterLauncher X2AbilityTemplate]
 LocFriendlyName="Bomba bláster"
-LocHelpText="Dispara una bomba bláster guiada a una zona objetivo. <Ability:ROCKETSCATTER/>"
+LocHelpText="Dispara una bomba bláster guiada a una zona objetivo.<Ability:ROCKETSCATTER/>"
 
 [NapalmX X2AbilityTemplate]
 LocFriendlyName="Napalm-X"
@@ -3174,6 +3174,10 @@ BonusText="+%AVENGERBONUS% VELOCIDAD DE CURACIÓN"
 FilledText="El equipo médico avanzado de %UNITNAME está aumentando la velocidad a la que se recuperan los soldados de sus heridas."
 LockedText="BLOQUEADO: COMPRAR MEJORA"
 
+[CovertActionIntenseTrainingStaffSlot X2StaffSlotTemplate]
+EmptyText="SOLDADO"
+BonusText="EN OPERACIÓN ENCUBIERTA"
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Techs ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 [Tech_AlienFacilityLead X2TechTemplate]
@@ -5739,6 +5743,10 @@ Description="La Resistencia ha colocado detectores de movimiento de rango bajo e
 FriendlyName="Alerta, presencia detectada"
 Description="Se ha descubierto el aura oscura de un Elegido. Ten seguro que aparecerán en esta misión."
 
+[SlightlyLargeMap X2SitRepTemplate]
+FriendlyName="Tamaño del mapa considerable"
+Description="El área de operaciones es más grande de lo normal: probablemente te llevará más tiempo de lo habitual en llegar al objetivo."
+
 [LargeMap X2SitRepTemplate]
 FriendlyName="Tamaño del mapa considerable"
 Description="El área de operaciones es más grande de lo normal: probablemente te llevará más tiempo de lo habitual en llegar al objetivo."
@@ -6110,7 +6118,7 @@ strCharacterName="Perdido bruto"
 [TheLostBruteHP16_LW X2CharacterTemplate]
 strCharacterName="Perdido bruto"
 
-[LWTheLostBruteHP18 X2CharacterTemplate]
+[TheLostBruteHP18_LW X2CharacterTemplate]
 strCharacterName="Perdido bruto"
 
 [TheLostBruteHP21_LW X2CharacterTemplate]
@@ -6222,9 +6230,9 @@ LocPromotionPopupText="<Bullet/> Si consigues al menos una muerte durante tu tur
 [Dedication_LW X2AbilityTemplate]
 LocFriendlyName="Dedicación"
 LocFlyOverText="Dedicación"
-LocLongDescription="Acción gratuita. Ganas <Ability:DEDICATION_MOBILITY/> de movilidad e ignoras el disparo de reacción durante el resto del turno. Tiempo de reutilización de <Ability:SelfCooldown_LW/> turnos."
-LocHelpText="Acción gratuita. Ganas <Ability:DEDICATION_MOBILITY/> de movilidad e ignoras el disparo de reacción durante el resto del turno. Tiempo de reutilización de <Ability:SelfCooldown_LW/> turnos."
-LocPromotionPopupText="<Bullet/> Ganas <Ability:DEDICATION_MOBILITY/> de movilidad e ignoras el disparo de reacción durante el resto del turno.<br/><Bullet/> Acción sin coste.<br/><Bullet/> Dedicación tiene un tiempo de reutilización de <Ability:SelfCooldown_LW/> turnos.<br/>"
+LocLongDescription="Acción gratuita. Ganas <Ability:DEDICATIONLW_MOBILITY/> de movilidad e ignoras el disparo de reacción durante el resto del turno. Tiempo de reutilización de <Ability:SelfCooldown_LW/> turnos."
+LocHelpText="Acción gratuita. Ganas <Ability:DEDICATIONLW_MOBILITY/> de movilidad e ignoras el disparo de reacción durante el resto del turno. Tiempo de reutilización de <Ability:SelfCooldown_LW/> turnos."
+LocPromotionPopupText="<Bullet/> Ganas <Ability:DEDICATIONLW_MOBILITY/> de movilidad e ignoras el disparo de reacción durante el resto del turno.<br/><Bullet/> Acción sin coste.<br/><Bullet/> Dedicación tiene un tiempo de reutilización de <Ability:SelfCooldown_LW/> turnos.<br/>"
 
 [Corpsman_LW X2AbilityTemplate]
 LocFriendlyName="Asistencia médica"
@@ -6473,6 +6481,14 @@ LocLongDescription = "Matar a un enemigo da como resultado una bonificación acu
 LocPromotionPopupText = "<Bullet/> Matar a un enemigo da como resultado una bonificación acumulable de +<Ability:DISASSEMBLY_HACK/> al pirateo durante 3 turnos.<br/>"
 
 [LightningSlash_LW X2AbilityTemplate]
+LocFriendlyName="Ataque relámpago"
+; LWOTC translated
+LocLongDescription="Ataca a cualquier enemigo con tu <Ability:BOUND_WEAPON_NAME/> dentro del rango de movimiento visualizado en azul. Este ataque no termina el turno."
+LocHelpText="Ataca a cualquier enemigo con tu <Ability:BOUND_WEAPON_NAME/> dentro del rango de movimiento visualizado en azul>. Este ataque no termina el turno."
+LocPromotionPopupText="<Bullet/> Abalánzate sobre cualquier enemigo con tu <Ability:BOUND_WEAPON_NAME/> dentro del rango de movimiento visualizado en azul.<br/><Bullet/> Este ataque no termina el turno.<br/><Bullet/> Tiempo de enfriamiento de <Ability:LIGHTNINGSLASH_COOLDOWN/> turnos.<br/>"
+; End translated
+
+[LightningSlashLastAction_LW X2AbilityTemplate]
 LocFriendlyName="Ataque relámpago"
 ; LWOTC translated
 LocLongDescription="Ataca a cualquier enemigo con tu <Ability:BOUND_WEAPON_NAME/> dentro del rango de movimiento visualizado en azul. Este ataque no termina el turno."
