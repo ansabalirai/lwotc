@@ -36,6 +36,7 @@ static function UpdateCovertActions(X2StrategyElementTemplate Template, int Diff
 	{
 		case 'CovertAction_SuperiorWeaponUpgrade':
 		case 'CovertAction_SuperiorPCS':
+		case 'CovertAction_ResistanceCard':
 			CaTemplate.RequiredFactionInfluence = eFactionInfluence_Minimal;
 			CaTemplate.bUnique = false;
 		case 'CovertAction_GatherSupplies':
@@ -75,7 +76,6 @@ static function UpdateCovertActions(X2StrategyElementTemplate Template, int Diff
 			break;
 		case 'CovertAction_IncreaseIncome':
 		case 'CovertAction_BreakthroughTech':
-		case 'CovertAction_ResistanceCard':
 			`LWTrace("X2LWCovertActionsModTemplate - disabling covert action " $ CATemplate.DataName);
 			CATemplate.RequiredFactionInfluence = EFactionInfluence(eFactionInfluence_MAX + 1);
 			break;
@@ -120,11 +120,13 @@ static function UpdateCovertActions(X2StrategyElementTemplate Template, int Diff
 	// Note that we can't use `foreach` to iterate over the slots because
 	// they're structs, which means we'd just be modifying a copy of the
 	// slot, not the original one. Yay UnrealScript.
-	if (CATemplate.DataName != 'CovertAction_IntenseTraining')
+	// Rai - Revert some changes to covert action rewards
+	if (CATemplate.DataName == 'CovertAction_IntenseTraining')
 	{
 		for (i = 0; i < CATemplate.Slots.Length; i++)
 		{
 			CATemplate.Slots[i].Rewards.Length = 0;
+			CATemplate.Slots[i].Rewards.AddItem('Reward_RankUp');
 		}
 	}
 }
@@ -244,6 +246,14 @@ static function CovertActionSlot CreateDefaultStaffSlot(optional name SlotName =
 	local CovertActionSlot SoldierSlot;
 
 	SoldierSlot.StaffSlot = SlotName;
+	// Rai - Adding this back in to restore stat boosts
+	SoldierSlot.Rewards.AddItem('Reward_StatBoostHP');
+	SoldierSlot.Rewards.AddItem('Reward_StatBoostAim');
+	SoldierSlot.Rewards.AddItem('Reward_StatBoostMobility');
+	SoldierSlot.Rewards.AddItem('Reward_StatBoostDodge');
+	SoldierSlot.Rewards.AddItem('Reward_StatBoostWill');
+	SoldierSlot.Rewards.AddItem('Reward_StatBoostHacking');
+	SoldierSlot.Rewards.AddItem('Reward_RankUp');
 	SoldierSlot.iMinRank = iMinRank;
 
 	return SoldierSlot;

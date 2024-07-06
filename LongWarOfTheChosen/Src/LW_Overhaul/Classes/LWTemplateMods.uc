@@ -3288,59 +3288,60 @@ function ReconfigGear(X2ItemTemplate Template, int Difficulty)
 	WeaponUpgradeTemplate = X2WeaponUpgradeTemplate(Template);
 	if (WeaponUpgradeTemplate != none)
 	{
+		// Rai  - 		Reverting changes to attachements
 		//specific alterations
-		if (WeaponUpgradeTemplate.DataName == 'AimUpgrade_Bsc')
-		{
-			WeaponUpgradeTemplate.AimBonus = 0;
-			//WeaponUpgradeTemplate.AimBonusNoCover = 0;
-			WeaponUpgradeTemplate.AddHitChanceModifierFn = none;
-			WeaponUpgradeTemplate.GetBonusAmountFn = none;
-			WeaponUpgradeTemplate.BonusAbilities.length = 0;
-			WeaponUpgradeTemplate.BonusAbilities.AddItem ('Scope_LW_Bsc_Ability');
-		}
-		if (WeaponUpgradeTemplate.DataName == 'AimUpgrade_Adv')
-		{
-			WeaponUpgradeTemplate.AimBonus = 0;
-			//WeaponUpgradeTemplate.AimBonusNoCover = 0;
-			WeaponUpgradeTemplate.AddHitChanceModifierFn = none;
-			WeaponUpgradeTemplate.GetBonusAmountFn = none;
-			WeaponUpgradeTemplate.BonusAbilities.length = 0;
-			WeaponUpgradeTemplate.BonusAbilities.AddItem ('Scope_LW_Adv_Ability');
-		}
-		if (WeaponUpgradeTemplate.DataName == 'AimUpgrade_Sup')
-		{
-			WeaponUpgradeTemplate.AimBonus = 0;
-			//WeaponUpgradeTemplate.AimBonusNoCover = 0;
-			WeaponUpgradeTemplate.AddHitChanceModifierFn = none;
-			WeaponUpgradeTemplate.GetBonusAmountFn = none;
-			WeaponUpgradeTemplate.BonusAbilities.length = 0;
-			WeaponUpgradeTemplate.BonusAbilities.AddItem ('Scope_LW_Sup_Ability');
-		}
+		// if (WeaponUpgradeTemplate.DataName == 'AimUpgrade_Bsc')
+		// {
+		// 	WeaponUpgradeTemplate.AimBonus = 0;
+		// 	//WeaponUpgradeTemplate.AimBonusNoCover = 0;
+		// 	WeaponUpgradeTemplate.AddHitChanceModifierFn = none;
+		// 	WeaponUpgradeTemplate.GetBonusAmountFn = none;
+		// 	WeaponUpgradeTemplate.BonusAbilities.length = 0;
+		// 	WeaponUpgradeTemplate.BonusAbilities.AddItem ('Scope_LW_Bsc_Ability');
+		// }
+		// if (WeaponUpgradeTemplate.DataName == 'AimUpgrade_Adv')
+		// {
+		// 	WeaponUpgradeTemplate.AimBonus = 0;
+		// 	//WeaponUpgradeTemplate.AimBonusNoCover = 0;
+		// 	WeaponUpgradeTemplate.AddHitChanceModifierFn = none;
+		// 	WeaponUpgradeTemplate.GetBonusAmountFn = none;
+		// 	WeaponUpgradeTemplate.BonusAbilities.length = 0;
+		// 	WeaponUpgradeTemplate.BonusAbilities.AddItem ('Scope_LW_Adv_Ability');
+		// }
+		// if (WeaponUpgradeTemplate.DataName == 'AimUpgrade_Sup')
+		// {
+		// 	WeaponUpgradeTemplate.AimBonus = 0;
+		// 	//WeaponUpgradeTemplate.AimBonusNoCover = 0;
+		// 	WeaponUpgradeTemplate.AddHitChanceModifierFn = none;
+		// 	WeaponUpgradeTemplate.GetBonusAmountFn = none;
+		// 	WeaponUpgradeTemplate.BonusAbilities.length = 0;
+		// 	WeaponUpgradeTemplate.BonusAbilities.AddItem ('Scope_LW_Sup_Ability');
+		// }
 
-		if (WeaponUpgradeTemplate.DataName == 'FreeFireUpgrade_Bsc')
-		{
-			WeaponUpgradeTemplate.FreeFireChance = 0;
-			WeaponUpgradeTemplate.FreeFireCostFn = none;
-			WeaponUpgradeTemplate.GetBonusAmountFn = none;
-			WeaponUpgradeTemplate.BonusAbilities.length = 0;
-			WeaponUpgradeTemplate.BonusAbilities.AddItem ('Hair_Trigger_LW_Bsc_Ability');
-		}
-		if (WeaponUpgradeTemplate.DataName == 'FreeFireUpgrade_Adv')
-		{
-			WeaponUpgradeTemplate.FreeFireChance = 0;
-			WeaponUpgradeTemplate.FreeFireCostFn = none;
-			WeaponUpgradeTemplate.GetBonusAmountFn = none;
-			WeaponUpgradeTemplate.BonusAbilities.length = 0;
-			WeaponUpgradeTemplate.BonusAbilities.AddItem ('Hair_Trigger_LW_Adv_Ability');
-		}
-		if (WeaponUpgradeTemplate.DataName == 'FreeFireUpgrade_Sup')
-		{
-			WeaponUpgradeTemplate.FreeFireChance = 0;
-			WeaponUpgradeTemplate.FreeFireCostFn = none;
-			WeaponUpgradeTemplate.GetBonusAmountFn = none;
-			WeaponUpgradeTemplate.BonusAbilities.length = 0;
-			WeaponUpgradeTemplate.BonusAbilities.AddItem ('Hair_Trigger_LW_Sup_Ability');
-		}
+		// if (WeaponUpgradeTemplate.DataName == 'FreeFireUpgrade_Bsc')
+		// {
+		// 	WeaponUpgradeTemplate.FreeFireChance = 0;
+		// 	WeaponUpgradeTemplate.FreeFireCostFn = none;
+		// 	WeaponUpgradeTemplate.GetBonusAmountFn = none;
+		// 	WeaponUpgradeTemplate.BonusAbilities.length = 0;
+		// 	WeaponUpgradeTemplate.BonusAbilities.AddItem ('Hair_Trigger_LW_Bsc_Ability');
+		// }
+		// if (WeaponUpgradeTemplate.DataName == 'FreeFireUpgrade_Adv')
+		// {
+		// 	WeaponUpgradeTemplate.FreeFireChance = 0;
+		// 	WeaponUpgradeTemplate.FreeFireCostFn = none;
+		// 	WeaponUpgradeTemplate.GetBonusAmountFn = none;
+		// 	WeaponUpgradeTemplate.BonusAbilities.length = 0;
+		// 	WeaponUpgradeTemplate.BonusAbilities.AddItem ('Hair_Trigger_LW_Adv_Ability');
+		// }
+		// if (WeaponUpgradeTemplate.DataName == 'FreeFireUpgrade_Sup')
+		// {
+		// 	WeaponUpgradeTemplate.FreeFireChance = 0;
+		// 	WeaponUpgradeTemplate.FreeFireCostFn = none;
+		// 	WeaponUpgradeTemplate.GetBonusAmountFn = none;
+		// 	WeaponUpgradeTemplate.BonusAbilities.length = 0;
+		// 	WeaponUpgradeTemplate.BonusAbilities.AddItem ('Hair_Trigger_LW_Sup_Ability');
+		// }
 
 		if (WeaponUpgradeTemplate.DataName == 'MissDamageUpgrade_Bsc')
 		{
@@ -3372,20 +3373,21 @@ function ReconfigGear(X2ItemTemplate Template, int Difficulty)
 			//Abilities are caught elsewhere
 		}
 		//make them mutually exclusive
-		if (WeaponUpgradeTemplate.DataName == 'ReloadUpgrade_Bsc' || WeaponUpgradeTemplate.DataName == 'ReloadUpgrade_Adv' || WeaponUpgradeTemplate.DataName == 'ReloadUpgrade_Sup')
-		{
-			WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ClipSizeUpgrade');
-			WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ClipSizeUpgrade_Bsc');
-			WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ClipSizeUpgrade_Adv');
-			WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ClipSizeUpgrade_Sup');
-		}
-		if (WeaponUpgradeTemplate.DataName == 'ClipSizeUpgrade_Bsc' || WeaponUpgradeTemplate.DataName == 'ClipSizeUpgrade_Adv' || WeaponUpgradeTemplate.DataName == 'ClipSizeUpgrade_Sup')
-		{
-			WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ReloadUpgrade');
-			WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ReloadUpgrade_Bsc');
-			WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ReloadUpgrade_Adv');
-			WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ReloadUpgrade_Sup');
-		}
+		// Rai - Removing this restriction
+		// if (WeaponUpgradeTemplate.DataName == 'ReloadUpgrade_Bsc' || WeaponUpgradeTemplate.DataName == 'ReloadUpgrade_Adv' || WeaponUpgradeTemplate.DataName == 'ReloadUpgrade_Sup')
+		// {
+		// 	WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ClipSizeUpgrade');
+		// 	WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ClipSizeUpgrade_Bsc');
+		// 	WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ClipSizeUpgrade_Adv');
+		// 	WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ClipSizeUpgrade_Sup');
+		// }
+		// if (WeaponUpgradeTemplate.DataName == 'ClipSizeUpgrade_Bsc' || WeaponUpgradeTemplate.DataName == 'ClipSizeUpgrade_Adv' || WeaponUpgradeTemplate.DataName == 'ClipSizeUpgrade_Sup')
+		// {
+		// 	WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ReloadUpgrade');
+		// 	WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ReloadUpgrade_Bsc');
+		// 	WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ReloadUpgrade_Adv');
+		// 	WeaponUpgradeTemplate.MutuallyExclusiveUpgrades.AddItem('ReloadUpgrade_Sup');
+		// }
 		//Config-able items array -- Weapon Upgrades
 		for (i=0; i < ItemTable.Length; ++i)
 		{           
@@ -3471,10 +3473,11 @@ function RewireTechTree(X2StrategyElementTemplate Template, int Difficulty)
 	If (TechTemplate != none)
 	{
 		// Disable breakthrough projects for now
-		if (TechTemplate.bBreakthrough)
-		{
-			TechTemplate.Requirements.RequiredScienceScore = 99999;
-		}
+		// Rai - Checking if this does anything
+		// if (TechTemplate.bBreakthrough)
+		// {
+		// 	TechTemplate.Requirements.RequiredScienceScore = 99999;
+		// }
 
 		//required by objective rework
 		if (TechTemplate.DataName == 'ResistanceCommunications')
