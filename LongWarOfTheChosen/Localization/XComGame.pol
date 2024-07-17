@@ -267,6 +267,14 @@ LocLongDescription="Wystrzel specjalną rakietę, która zadaje ograniczone obra
 LocHelpText="Rakieta, która ogłusza lub dezorientuje cele i pozostawia chmurę dymu. <Ability:ROCKETSCATTER/>"
 LocPromotionPopupText="<Bullet/> Jedno użycie na misję.<br/><Bullet/> Szanse na ogłuszenie w oparciu o wynik Woli celu i poziom żołnierza.<br/><Bullet/> Szanse na dezorientację w oparciu o tylko punktację celu. <br/><Bullet/> Wymaga jednej akcji i kończy turę żołnierza.<br/><Bullet/> Elitarne Kodeksy i Psi Zombie są odporne na wszystkie efekty, łącznie z obrażeniami.<br/><Bullet/> Sojusznicy nie mogą zostać ranni przez ten atak.<br/>"
 
+[BlasterConcussionRocket X2AbilityTemplate]
+LocFriendlyName="Rakieta wstrząsowa"
+LocFlyOverText="Rakieta wstrząsowa"
+LocLongDescription="Wystrzel specjalną rakietę, która zadaje ograniczone obrażenia, ale ma szansę ogłuszyć lub zdezorientować organicznych wrogów w swoim obszarze działania i pozostawi chmurę dymu."
+LocHelpText="Rakieta, która ogłusza lub dezorientuje cele i pozostawia chmurę dymu. <Ability:ROCKETSCATTER/>"
+LocPromotionPopupText="<Bullet/> Jedno użycie na misję.<br/><Bullet/> Szanse na ogłuszenie w oparciu o wynik Woli celu i poziom żołnierza.<br/><Bullet/> Szanse na dezorientację w oparciu o tylko punktację celu. <br/><Bullet/> Wymaga jednej akcji i kończy turę żołnierza.<br/><Bullet/> Elitarne Kodeksy i Psi Zombie są odporne na wszystkie efekty, łącznie z obrażeniami.<br/><Bullet/> Sojusznicy nie mogą zostać ranni przez ten atak.<br/>"
+
+
 ;;;;;;;;;;;;;;;;;;;;  SHINOBI ABILITIES ;;;;;;;;;;;;;;;;;;;;;;;
 
 [CoupDeGrace X2AbilityTemplate]
@@ -350,6 +358,12 @@ LocLongDescription="Zapewnia dodatkowy egzemplarz granatu zadającego obrażenia
 LocHelpText="Zapewnia dodatkowy egzemplarz granatu zadającego obrażenia, który znajduje się w miejscu wyłącznie na granaty."
 LocFlyOverText="Ciężka artyleria"
 LocPromotionPopupText="<Bullet/> Zdolność \"ciężka artyleria\" obejmuje swym działaniem wszystkie granaty powodujące obrażenia.<br/>"
+
+[HeavyOrdnanceV2 X2AbilityTemplate]
+LocFriendlyName="Ciężka artyleria"
+LocLongDescription="Umieszczenie granatu w przeznaczonym wyłącznie dla niego miejscu zapewni ci jego dodatkowy egzemplarz."
+LocHelpText="Umieszczenie granatu w przeznaczonym wyłącznie dla niego miejscu zapewni ci jego dodatkowy egzemplarz."
+LocPromotionPopupText="<Bullet/> Do ciężkiej artylerii zaliczają się wszystkie granaty, nawet te pozbawione potencjału ofensywnego, takie jak skanery bojowe i granaty dymne.<br/>"
 
 [Sapper X2AbilityTemplate]
 LocFriendlyName="Saper"

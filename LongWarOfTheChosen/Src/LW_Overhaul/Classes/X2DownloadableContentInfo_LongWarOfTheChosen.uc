@@ -57,6 +57,7 @@ var config bool bNerfFrostLegion;
 var config bool bDisableDiversitySystem;
 
 var config array<MissionDefinition> ReplacementMissionDefs;
+var config array<EncounterBucket> ReplacementEncounterBuckets;
 
 var config array<string> MissionsToNotDiversify;
 
@@ -241,9 +242,11 @@ static event OnPostTemplatesCreated()
 	ModifyYellAbility();
 	ModifyMissionSchedules();
 	ModifyEncountersForFL21();
+	UpdateWaterworldRNF();
 	ModCompatibilityConfig();
 	EditModdedRocketAbilities();
 	UpdateSkulljackAllShooterEffectExclusions();
+	class'X2Ability_PerkPackAbilitySet2'.static.AddEffectsToGrenades();
 }
 
 static function ModCompatibilityConfig()
@@ -360,6 +363,25 @@ static function ModifyEncountersForFL21()
     	}
 	}
 
+}
+
+static function UpdateWaterworldRNF()
+{
+	local XComTacticalMissionManager MissionManager;
+	local EncounterBucket EncounterBucket;
+	local int idx;
+
+	MissionManager = `TACTICALMISSIONMGR;
+
+	foreach default.ReplacementEncounterBuckets (EncounterBucket)
+	{
+		idx = MissionManager.EncounterBuckets.Find('EncounterBucketID', EncounterBucket.EncounterBucketID);
+		if(idx != INDEX_NONE)
+		{
+			MissionManager.EncounterBuckets[idx] = EncounterBucket;
+			`LWTrace("Replacing EncounterBucket" @EncounterBucket.EncounterBucketId);
+		}
+	}
 }
 
 static function UpdateEncounterLists()
@@ -1118,12 +1140,39 @@ static event OnPostMission()
 // called for the creation of Gatecrasher.
 static function PostSitRepCreation(out GeneratedMissionData GeneratedMission, optional XComGameState_BaseObject SourceObject)
 {
-	local XComGameState_HeadquartersAlien AlienHQ;
+	//local XComGameState_HeadquartersAlien AlienHQ;
+	local XComGameState_WorldRegion Region;
+	local XComGameState_MissionSite Mission;
+	local XComGameState_LWAlienActivity Activity;
+	local XComGameState_WorldRegion_LWStrategyAI RegionalAI;
 
-	AlienHQ = XComGameState_HeadquartersAlien(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersAlien'));
+	//AlienHQ = XComGameState_HeadquartersAlien(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersAlien'));
+	Activity = XComGameState_LWAlienActivity(SourceObject);
+	Mission = XComGameState_MissionSite(SourceObject);
 
-	// Disable TheLost SitRep if we haven't reached the appropriate force level yet.
-	if (AlienHQ.ForceLevel < default.MIN_FL_FOR_LOST[`TACTICALDIFFICULTYSETTING])
+	if(Activity != none)
+	{
+		Region = XComGameState_WorldRegion(`XCOMHISTORY.GetGameStateForObjectID(Activity.PrimaryRegion.ObjectID));
+	}
+
+	if(Mission != none)
+	{
+		Region = XComGameState_WorldRegion(`XCOMHISTORY.GetGameStateForObjectID(Mission.Region.ObjectID));
+	}
+
+	if(Region != none)
+	{
+		RegionalAI = class'XComGameState_WorldRegion_LWStrategyAI'.static.GetRegionalAI(Region);
+
+		// Disable TheLost SitRep if we haven't reached the appropriate force level yet.
+		if (RegionalAI.LocalForceLevel < default.MIN_FL_FOR_LOST[`TACTICALDIFFICULTYSETTING])
+		{
+		GeneratedMission.SitReps.RemoveItem('TheLost');
+		GeneratedMission.SitReps.RemoveItem('TheHorde');
+		}
+	}
+	// If we don't have a region, also disable it so you don't get them on CAD.
+	else
 	{
 		GeneratedMission.SitReps.RemoveItem('TheLost');
 		GeneratedMission.SitReps.RemoveItem('TheHorde');
@@ -2260,6 +2309,62 @@ static function FinalizeUnitAbilitiesForInit(XComGameState_Unit UnitState, out a
 				SetupData[index]=(Data);  // swap the ability
 			}
 		}
+	}
+
+	// New Rocket stuff
+
+	if(UnitState.HasItemOfTemplateType('LWGauntlet_BM'))
+	{
+		// This assumes secondary gauntlet!
+
+		// Concussion Rocket
+		index = SetupData.Find('TemplateName', 'ConcussionRocket');
+		if (index != -1)
+		{
+			AbilityTemplate = AbilityTemplateMan.FindAbilityTemplate('BlasterConcussionRocket');
+
+			if(AbilityTemplate != none)
+			{
+				Data = EmptyData;
+				Data.TemplateName = AbilityName;
+				Data.Template = AbilityTemplate;
+				Data.SourceWeaponRef = UnitState.GetSecondaryWeapon().GetReference();
+				SetupData[index]=(Data);  // swap the ability
+			}
+		}
+
+		// Shredder Rocket
+		index = SetupData.Find('TemplateName', 'ShredderRocket_LW');
+		if (index != -1)
+		{
+			AbilityTemplate = AbilityTemplateMan.FindAbilityTemplate('BlasterShredderRocket_LW');
+
+			if(AbilityTemplate != none)
+			{
+				Data = EmptyData;
+				Data.TemplateName = AbilityName;
+				Data.Template = AbilityTemplate;
+				Data.SourceWeaponRef = UnitState.GetSecondaryWeapon().GetReference();
+				SetupData[index]=(Data);  // swap the ability
+			}
+		}
+
+		// EMP Rocket
+		index = SetupData.Find('TemplateName', 'EMPRocket_LW');
+		if (index != -1)
+		{
+			AbilityTemplate = AbilityTemplateMan.FindAbilityTemplate('BlasterEMPRocket_LW');
+
+			if(AbilityTemplate != none)
+			{
+				Data = EmptyData;
+				Data.TemplateName = AbilityName;
+				Data.Template = AbilityTemplate;
+				Data.SourceWeaponRef = UnitState.GetSecondaryWeapon().GetReference();
+				SetupData[index]=(Data);  // swap the ability
+			}
+		}
+
 	}
 
 	`LWTrace("FinalizeUnitAbilitiesForInit: complete");
@@ -4117,6 +4222,12 @@ static function bool AbilityTagExpandHandler(string InString, out string OutStri
 			return true;
 		case 'HEAT_WARHEADS_SHRED_LW':
 			Outstring = string(class'X2Ability_LW_GrenadierAbilitySet'.default.HEAT_WARHEADS_SHRED);
+			return true;
+		case 'TANDEMHEAT_WARHEADS_PIERCE_LW':
+			Outstring = string(class'X2Ability_LW_GrenadierAbilitySet'.default.TANDEMHEAT_WARHEADS_PIERCE);
+			return true;
+		case 'TANDEMHEAT_WARHEADS_SHRED_LW':
+			Outstring = string(class'X2Ability_LW_GrenadierAbilitySet'.default.TANDEMHEAT_WARHEADS_SHRED);
 			return true;
 		case 'NEEDLE_BONUS_UNARMORED_DMG_LW': // Needle Grenades
 			Outstring = string(class'X2Ability_LW_GrenadierAbilitySet'.default.NEEDLE_BONUS_UNARMORED_DMG);

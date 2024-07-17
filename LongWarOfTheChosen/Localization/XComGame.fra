@@ -285,6 +285,15 @@ LocHelpText="Roquette spéciale qui étourdit ou désoriente les cibles et libè
 LocPromotionPopupText="<Bullet/> Utilisable une seule fois par mission.<br/><Bullet/> Les chances d'étourdissement ou de désorientation dépendent de la volonté de la cible et du modèle de gantelet utilisé.<br/><Bullet/> Coûte 1 action et met fin à votre tour.<br/><Bullet/> Les codex d'élite et les zombies psis ne sont pas blessés par cette attaque et sont immunisés contre ses effets.<br/>"
 ; End translated (2)
 
+[BlasterConcussionRocket X2AbilityTemplate]
+LocFriendlyName="Roquette désorientante"
+LocFlyOverText="Roquette désorientante"
+LocLongDescription="Tire une roquette spéciale qui inflige des dégâts limités et libère un nuage de fumée. Peut étourdir ou désorienter les cibles organiques prises dans sa zone d'effet."
+LocHelpText="Roquette spéciale qui étourdit ou désoriente les cibles et libère un nuage de fumée. <Ability:ROCKETSCATTER/>"
+LocPromotionPopupText="<Bullet/> Utilisable une seule fois par mission.<br/><Bullet/> Les chances d'étourdissement ou de désorientation dépendent de la volonté de la cible et du modèle de gantelet utilisé.<br/><Bullet/> Coûte 1 action et met fin à votre tour.<br/><Bullet/> Les codex d'élite et les zombies psis ne sont pas blessés par cette attaque et sont immunisés contre ses effets.<br/>"
+; End translated (2)
+
+
 ;;;;;;;;;;;;;;;;;;;;  SHINOBI ABILITIES ;;;;;;;;;;;;;;;;;;;;;;;
 
 [CoupDeGrace X2AbilityTemplate]
@@ -378,6 +387,12 @@ LocLongDescription="Toute grenade offensive équipée à l'emplacement de grenad
 LocHelpText="Toute grenade offensive équipée à l'emplacement de grenade reçoit une utilisation bonus."
 LocFlyOverText="Munitions lourdes"
 LocPromotionPopupText="<Bullet/> Toutes les grenades faisant des dégâts sont disponibles pour la capacité Munitions lourdes.<br/>"
+
+[HeavyOrdnanceV2 X2AbilityTemplate]
+LocFriendlyName="Munitions lourdes"
+LocLongDescription="Utilisation supplémentaire d'une grenade à l'emplacement réservé aux grenades."
+LocHelpText="Utilisation supplémentaire d'une grenade à l'emplacement réservé aux grenades."
+LocPromotionPopupText="<Bullet/> Toutes les grenades sont disponibles pour la capacité Munitions lourdes, comme les détecteurs et les grenades fumigènes.<br/>"
 
 [Sapper X2AbilityTemplate]
 LocFriendlyName="Ravage"

@@ -1826,6 +1826,8 @@ function ModifyAbilitiesGeneral(X2AbilityTemplate Template, int Difficulty)
 			case 'LWBlasterLauncher':           // Salvo
 			case 'RocketLauncher':              // Salvo
 			case 'ConcussionRocket':            // Salvo
+			case 'ShredderRocket_LW':           // Salvo\
+			case 'EMPRocket_LW':            // Salvo
 			case 'ShredderGun':                 // Salvo
 			case 'PlasmaBlaster':               // Salvo
 			case 'ShredstormCannon':            // Salvo
@@ -2040,6 +2042,7 @@ function SwapExplosiveFalloffItem(X2ItemTemplate Template, int Difficulty)
 		FalloffDamageEffect = new class'X2Effect_ApplyExplosiveFalloffWeaponDamage' (ThrownDamageEffect);
 
 		//Falloff-specific settings
+		FalloffDamageEffect.UnitDamageAbilityExclusions.AddItem('TandemHEATWarheads'); // if has any of these abilities, skip any falloff
 		FalloffDamageEffect.UnitDamageAbilityExclusions.AddItem('TandemWarheads'); // if has any of these abilities, skip any falloff
 		FalloffDamageEffect.EnvironmentDamageAbilityExclusions.AddItem('CombatEngineer'); // if has any of these abilities, skip any falloff
 		FalloffDamageEffect.UnitDamageSteps = default.UnitDamageSteps;
@@ -2724,7 +2727,10 @@ function ReconfigGear(X2ItemTemplate Template, int Difficulty)
 		case 'AlienHunterRifle_BM':
 			WeaponTemplate.Abilities.AddItem('LockNLoad_LW');
 			WeaponTemplate.Abilities.AddItem('Concentration_LW');
-		break;
+			break;
+		case 'GrenadeLauncher_MG':
+			WeaponTemplate.Abilities.AddItem('HeavyOrdnanceV2');
+			break;
 		default:
 			break;
 		}
